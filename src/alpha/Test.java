@@ -29,12 +29,7 @@ public class Test {
     }
 
     public Test() {
-        STATE.soulRed = new ImageIcon("src/alpha/imgs/soul_red.png");
-        STATE.soulBlue_down = new ImageIcon("src/alpha/imgs/soul_blue_down.png");
-        STATE.soulBlue_up = new ImageIcon("src/alpha/imgs/soul_blue_up.png");
-        STATE.soulBlue_left = new ImageIcon("src/alpha/imgs/soul_blue_left.png");
-        STATE.soulBlue_right = new ImageIcon("src/alpha/imgs/soul_blue_right.png");
-        STATE.soulGreen = new ImageIcon("src/alpha/imgs/soul_green.png");
+        alpha.render.SpriteLoader.load(STATE);
         STATE.bounds = new Teleporter[4];
         STATE.bounds[0] = new Teleporter(20, 0, 460, 30, 0);
         STATE.bounds[1] = new Teleporter(480, 20, 30, 460, 1);
@@ -68,7 +63,7 @@ public class Test {
         } else {
             STATE.frame.setTitle("UNDERTALE: CONCENTRATE!");
         }
-        STATE.frame.addKeyListener(STATE.gp);
+        STATE.frame.addKeyListener(new alpha.input.InputHandler(Test.STATE));
         STATE.t = new Thread(STATE.gp);
         STATE.t.start();
 
@@ -77,242 +72,23 @@ public class Test {
     }
 }
 
-class GamePanel extends JPanel implements Runnable, KeyListener {
+class GamePanel extends JPanel implements Runnable {
     public void paint(Graphics g) {
-        g.fillRect(0, 0, Test.STATE.frame.getWidth(), Test.STATE.frame.getHeight());
-        this.drawBound(g);
-        this.drawStatus(g);
-
-        if (Test.STATE.player.hp > 0) {
-            this.drawSoul(g);
-            this.drawHP(g);
-        }
-        this.drawWarnings(Test.STATE.warnings, g);
-        this.drawBones(Test.STATE.bones, g);
-        this.drawSpear(g);
-
-        this.drawGameStatus(g);
-        if (Test.STATE.win) {
-            this.drawWin(g);
-        }
-        if (Test.STATE.cSystem.activated) {
-            this.drawCoordinateSystem(g);
-            // Draw All functions
-            for (FunctionAttack a : Test.STATE.cSystem.functionAttacks) {
-                if (a.active) {
-                    g.setColor(Color.RED);
-                    //将每一个平面直角坐标系点都转化为屏幕直角坐标系点
-                    int[] intxs = new int[50];
-                    int[] intys = new int[50];
-                    for (int i = 0; i < 50; i++) {
-                        intys[i] = (int) (250 - a.ys[i] + Test.STATE.deltaY);
-                        intxs[i] = (int) (250 + a.xs[i] + Test.STATE.deltaX);
-                    }
-                    g.drawPolyline(intxs, intys, 50);
-                }
-            }
-        }
-        if (Test.STATE.player.soulMode.equals("Blue")) {
-            this.drawGravityDirection(g);
-        }
+        alpha.render.Renderer.render(g, Test.STATE, this);
     }
 
-    public void drawBound(Graphics g) {
-        // draw the boundaries
-        g.setColor(Color.WHITE);
-        for (Bound bound : Test.STATE.moveBorder) {
-            g.fillRect((int) bound.x + Test.STATE.deltaX, (int) bound.y + Test.STATE.deltaY, bound.width, bound.height);
-        }
-
-        for (Teleporter e : Test.STATE.bounds) {
-            if (e.activated) {
-                g.setColor(Color.BLUE);
-                g.fillRect((int) (e.x + Test.STATE.deltaX), (int) (e.y + Test.STATE.deltaY), (int) e.width, (int) e.height);
-            }
-        }
-    }
-
-    public void drawSoul(Graphics g) {
-        if (Test.STATE.player.soulMode.equals("Red")) {
-            if ((Test.STATE.ticks % 5 != 0 && Test.STATE.player.invincibleFrames > 0) || Test.STATE.player.invincibleFrames <= 0)
-                g.drawImage(Test.STATE.soulRed.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
-        } else if (Test.STATE.player.soulMode.equals("Blue")) {
-            if ((Test.STATE.ticks % 5 != 0 && Test.STATE.player.invincibleFrames > 0) || Test.STATE.player.invincibleFrames <= 0)
-                switch (Test.STATE.player.gDirection) {
-                    case 0:
-                        g.drawImage(Test.STATE.soulBlue_up.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
-                        break;
-                    case 1:
-                        g.drawImage(Test.STATE.soulBlue_right.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
-                        break;
-                    case 2:
-                        g.drawImage(Test.STATE.soulBlue_down.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
-                        break;
-                    case 3:
-                        g.drawImage(Test.STATE.soulBlue_left.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
-                        break;
-                }
 
 
-        } else if (Test.STATE.player.soulMode.equals("Green")) {
-            if ((Test.STATE.ticks % 5 != 0 && Test.STATE.player.invincibleFrames > 0) || Test.STATE.player.invincibleFrames <= 0)
-                g.drawImage(Test.STATE.soulGreen.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
 
-            g.setColor(Color.CYAN);
-            g.fillRect((int) (Test.STATE.player.shield.x + Test.STATE.deltaX), (int) (Test.STATE.player.shield.y + Test.STATE.deltaY), Test.STATE.player.shield.width, Test.STATE.player.shield.height);
 
-        }
 
-    }
 
-    public void drawHP(Graphics g) {
-        g.setColor(Color.YELLOW);
-        g.fillRect(Test.STATE.deltaX + 300, 530 + Test.STATE.deltaY, Test.STATE.player.hp * 2, 35);
-        g.setFont(new Font("Monster Friend Back", Font.BOLD, 25));
-        if (Test.STATE.player.karma == 0) {
-            g.setColor(Color.WHITE);
-        } else {
-            g.setColor(Color.MAGENTA);
-        }
-        g.drawString("      " + Test.STATE.player.hp + "  /", 120 + Test.STATE.deltaX, 530 + Test.STATE.deltaY);
-        g.setColor(Color.MAGENTA);
-        g.fillRect(Test.STATE.deltaX + 300 + Test.STATE.player.hp * 2 - Test.STATE.player.karma * 2, 530 + Test.STATE.deltaY, Test.STATE.player.karma * 2,
-            35);
 
-    }
 
-    public void drawBones(Vector<Bone> b, Graphics g) {
 
-        for (int i = 0; i < b.size(); i++) {
 
-            if (b.get(i).fadeOut) {
-                Color color = new Color((int) (((double) (b.get(i).duration) / b.get(i).maxDuration) * 220) + 20, (int) (((double) (b.get(i).duration) / b.get(i).maxDuration) * 220) + 20, (int) (((double) (b.get(i).duration) / b.get(i).maxDuration) * 220) + 20);
-                g.setColor(color);
-            } else if (b.get(i).color.equals("White")) {
 
-                g.setColor(Color.GRAY);
-            } else if (b.get(i).color.equals("Blue")) {
-                g.setColor(Color.CYAN);
-            } else if (b.get(i).color.equals("Orange")) {
-                g.setColor(Color.ORANGE);
-            }
-            g.fillRect((int) (b.get(i).x + Test.STATE.deltaX), (int) (b.get(i).y + Test.STATE.deltaY), (int) b.get(i).width, (int) b.get(i).height);
 
-        }
-    }
-
-    public void drawPlatform(Graphics g) {
-        for (Platform p : Test.STATE.platforms) {
-            g.setColor(Color.GREEN);
-            g.fillRect((int) (p.x + Test.STATE.deltaX), (int) (p.y + Test.STATE.deltaY), p.width, p.height);
-        }
-    }
-
-    public void drawWarnings(Vector<Warning> w, Graphics g) {
-
-        for (int i = 0; i < w.size(); i++) {
-            g.setColor(new Color((int) (250 - (w.get(i).duration / (double) w.get(i).maxDuration) * 250), (int) ((w.get(i).duration / (double) w.get(i).maxDuration) * 250), 0));
-            g.fillRect((int) (w.get(i).x + Test.STATE.deltaX), (int) (w.get(i).y + Test.STATE.deltaY), (int) w.get(i).width, (int) w.get(i).height);
-        }
-    }
-
-    public void drawStatus(Graphics g) {
-        g.setColor(Color.YELLOW);
-        g.setFont(new Font("宋体", Font.BOLD, 20));
-
-        //g.drawString("游戏时间:" + Math.floorDiv(Test.STATE.ticks, 30) + "", 200 + Test.STATE.deltaX, 520 + Test.STATE.deltaY);
-        //g.drawString("1.通过↑↓←→控制SOUL", -500 + Test.STATE.deltaX, Test.STATE.deltaY);
-        //g.drawString("2.躲避灰色方块", -500 + Test.STATE.deltaX, Test.STATE.deltaY + 25);
-        //g.drawString("3.当生命值为0时，游戏结束", -500 + Test.STATE.deltaX, Test.STATE.deltaY + 50);
-        //g.drawString("4. 蓝色的攻击-> 不要动  橙色攻击->动",-500 + Test.STATE.deltaX, Test.STATE.deltaY + 75);
-        //g.drawString("5. 红色：正常 蓝色：重力 绿色：护盾", -500+Test.STATE.deltaX, Test.STATE.deltaY+100);
-        //g.drawString("6. 遇到黄色的矛，不要格挡。",-500 + Test.STATE.deltaX, Test.STATE.deltaY + 125);
-    }
-
-    public void drawGravityDirection(Graphics g) {
-        g.setFont(new Font("宋体", Font.BOLD, 100));
-        switch (Test.STATE.player.gDirection) {
-            case 0:
-                g.drawString("↑", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
-                break;
-            case 1:
-                g.drawString("→", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
-                break;
-            case 2:
-                g.drawString("↓", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
-                break;
-            case 3:
-                g.drawString("←", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
-                break;
-        }
-
-    }
-
-    public void drawGameStatus(Graphics g) {
-        g.setColor(Color.YELLOW);
-        g.setFont(new Font("Determination Sans", Font.BOLD, 40));
-        if (Test.STATE.paused && !Test.STATE.over) {
-            g.drawString("Press P to Continue", Test.STATE.deltaX + 75, -20 + Test.STATE.deltaY);
-        } else if (!Test.STATE.paused && !Test.STATE.over) {
-            g.drawString("Press P to Pause", Test.STATE.deltaX + 75, -20 + Test.STATE.deltaY);
-        } else if (Test.STATE.over) {
-            g.setColor(Color.WHITE);
-            g.drawString("Press R to Restart", Test.STATE.deltaX + 75, -20 + Test.STATE.deltaY);
-
-        }
-    }
-
-    public void drawWin(Graphics g) {
-
-        g.setColor(Color.YELLOW);
-        g.setFont(new Font("宋体", Font.BOLD, 100));
-        g.drawString("你赢了!!!!!!", Test.STATE.deltaX - 150, Test.STATE.deltaY + 450);
-
-    }
-
-    public void drawCoordinateSystem(Graphics g) {
-        g.setColor(Color.GREEN);
-        g.drawLine(0 + Test.STATE.deltaX, 250 + Test.STATE.deltaY, 500 + Test.STATE.deltaX, 250 + Test.STATE.deltaY);
-        g.drawLine(250 + Test.STATE.deltaX, 0 + Test.STATE.deltaY, 250 + Test.STATE.deltaX, 500 + Test.STATE.deltaY);
-        g.setColor(Color.YELLOW);
-        g.drawString("(" + (int) (Test.STATE.player.x - 250) + "," + (int) (250 - Test.STATE.player.y) + ")", -350 + Test.STATE.deltaX, 160 + Test.STATE.deltaY);
-        for (int i = 0; i < Test.STATE.cSystem.functionAttacks.size(); i++) {
-            FunctionAttack f = Test.STATE.cSystem.functionAttacks.get(i);
-            g.drawString(f.equation, -700 + Test.STATE.deltaX, 200 + 40 * i + Test.STATE.deltaY);
-
-        }
-    }
-
-    public void drawFunctionAttacks(Graphics g) {
-        for (FunctionAttack a : Test.STATE.cSystem.functionAttacks) {
-            if (a.active) {
-                g.setColor(Color.RED);
-                //将每一个平面直角坐标系点都转化为屏幕直角坐标系点
-                int[] intxs = new int[50];
-                int[] intys = new int[50];
-                for (int i = 0; i < 50; i++) {
-                    intys[i] = (int) (250 - a.ys[i] + Test.STATE.deltaY);
-                    intxs[i] = (int) (250 + a.xs[i] + Test.STATE.deltaX);
-                }
-                Graphics2D graphics2d = (Graphics2D) g;
-                graphics2d.setStroke(new BasicStroke(3));
-                g.drawPolyline(intxs, intys, 50);
-            }
-        }
-    }
-
-    public void drawSpear(Graphics g) {
-
-        for (Spear s : Test.STATE.spears) {
-            if (s.color.equals("Magenta")) {
-                g.setColor(Color.MAGENTA);
-            } else if (s.color.equals("Yellow")) {
-                g.setColor(Color.YELLOW);
-            }
-            g.fillRect((int) (s.x + Test.STATE.deltaX), (int) (s.y + Test.STATE.deltaY), s.width, s.height);
-        }
-
-    }
 
     // 主循环
     @Override
@@ -581,79 +357,12 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
         alpha.system.KarmaSystem.karmaHpDecrease(Test.STATE);
     }
 
-    @Override
-    public void keyPressed(KeyEvent arg0) {
-        if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-            Test.STATE.ticks += 300;
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_P) {
 
-            Test.STATE.paused = !Test.STATE.paused;
-
-        }
-        // TODO Auto-generated method stub
-        if (arg0.getKeyCode() == KeyEvent.VK_UP && (Test.STATE.player.gDirection != 0 || !Test.STATE.player.soulMode.equals("Blue"))) {
-
-            Test.STATE.player.up = true;
-
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_RIGHT && (Test.STATE.player.gDirection != 1 || !Test.STATE.player.soulMode.equals("Blue"))) {
-
-            Test.STATE.player.right = true;
-
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_DOWN && (Test.STATE.player.gDirection != 2 || !Test.STATE.player.soulMode.equals("Blue"))) {
-
-            Test.STATE.player.down = true;
-
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_LEFT && (Test.STATE.player.gDirection != 3 || !Test.STATE.player.soulMode.equals("Blue"))) {
-
-            Test.STATE.player.left = true;
-
-        }
-        if (Test.STATE.over && arg0.getKeyCode() == KeyEvent.VK_R) {
-
-            Test.STATE.restart = true;
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_F8) {
-            Test.STATE.player.hp = Test.STATE.player.hpMax;
-        }
-
-
-    }
-
-    @Override
-    public void keyReleased(KeyEvent arg0) {
-        // TODO Auto-generated method stub
-        if (arg0.getKeyCode() == KeyEvent.VK_UP) {
-
-            Test.STATE.player.up = false;
-
-        } else if (arg0.getKeyCode() == KeyEvent.VK_RIGHT) {
-
-            Test.STATE.player.right = false;
-
-        } else if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
-
-            Test.STATE.player.down = false;
-
-        } else if (arg0.getKeyCode() == KeyEvent.VK_LEFT) {
-
-            Test.STATE.player.left = false;
-
-        }
-    }
 
     public void checkHit() {
         alpha.system.CollisionSystem.checkHit(Test.STATE);
     }
 
-    @Override
-    public void keyTyped(KeyEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
 
     // 锟斤拷锟斤拷
 
