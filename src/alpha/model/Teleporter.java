@@ -19,16 +19,16 @@ public class Teleporter extends Entity {
         // direction： 边界所处的方向
         switch (this.direction) {
             case 0:
-                Test.player.y = 425;
+                Test.STATE.player.y = 425;
                 break;
             case 1:
-                Test.player.x = 75;
+                Test.STATE.player.x = 75;
                 break;
             case 2:
-                Test.player.y = 75;
+                Test.STATE.player.y = 75;
                 break;
             case 3:
-                Test.player.x = 425;
+                Test.STATE.player.x = 425;
                 break;
 
         }

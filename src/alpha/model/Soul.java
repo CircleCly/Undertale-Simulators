@@ -32,7 +32,7 @@ public class Soul extends Entity {
     }
 
     public void directShield(int direction) {
-        Test.player.shield.direction = direction;
+        Test.STATE.player.shield.direction = direction;
         switch (direction) {
             case 0:
                 if (this.soulMode.equals("Green")) {

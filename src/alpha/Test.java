@@ -20,26 +20,8 @@ import alpha.attack.function.*;
 import alpha.util.GameTools;
 
 public class Test {
-    public static JFrame frame;
-    public static CoordinateSystem cSystem;
-    public static Soul player;
-    public static GamePanel gp;
-    public static float ticks = 0;
-    public static Vector<Bone> bones;
-    public static Vector<Spear> spears;
-    public static Vector<Platform> platforms;
-    public static Vector<Warning> warnings;
-    public static int deltaX;
-    public static int deltaY;
-    public static boolean paused = true;
-    public static boolean over = false;
-    public static boolean win = false;
-    public static boolean restart = false;
-    public static Teleporter[] bounds;
-    public static Bound[] moveBorder;
-    public static Thread t;
+    public static GameState STATE = new GameState();
     public static final int fps = 60;
-    public static ImageIcon soulRed, soulBlue_down, soulBlue_up, soulBlue_left, soulBlue_right, soulGreen;
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
@@ -47,90 +29,90 @@ public class Test {
     }
 
     public Test() {
-        soulRed = new ImageIcon("src/alpha/imgs/soul_red.png");
-        soulBlue_down = new ImageIcon("src/alpha/imgs/soul_blue_down.png");
-        soulBlue_up = new ImageIcon("src/alpha/imgs/soul_blue_up.png");
-        soulBlue_left = new ImageIcon("src/alpha/imgs/soul_blue_left.png");
-        soulBlue_right = new ImageIcon("src/alpha/imgs/soul_blue_right.png");
-        soulGreen = new ImageIcon("src/alpha/imgs/soul_green.png");
-        bounds = new Teleporter[4];
-        bounds[0] = new Teleporter(20, 0, 460, 30, 0);
-        bounds[1] = new Teleporter(480, 20, 30, 460, 1);
-        bounds[2] = new Teleporter(20, 480, 460, 30, 2);
-        bounds[3] = new Teleporter(0, 20, 30, 460, 3);
-        moveBorder = new Bound[4];
-        moveBorder[0] = new Bound(0, 0, 500, 20);
-        moveBorder[1] = new Bound(480, 0, 20, 500);
-        moveBorder[2] = new Bound(0, 480, 500, 20);
-        moveBorder[3] = new Bound(0, 0, 20, 500);
-        cSystem = new CoordinateSystem();
-        frame = new JFrame();
-        gp = new GamePanel();
-        player = new Soul(225, 225, 25, 25);
-        bones = new Vector<Bone>();
-        spears = new Vector<Spear>();
-        warnings = new Vector<Warning>();
-        platforms = new Vector<Platform>();
-        frame.add(gp);
+        STATE.soulRed = new ImageIcon("src/alpha/imgs/soul_red.png");
+        STATE.soulBlue_down = new ImageIcon("src/alpha/imgs/soul_blue_down.png");
+        STATE.soulBlue_up = new ImageIcon("src/alpha/imgs/soul_blue_up.png");
+        STATE.soulBlue_left = new ImageIcon("src/alpha/imgs/soul_blue_left.png");
+        STATE.soulBlue_right = new ImageIcon("src/alpha/imgs/soul_blue_right.png");
+        STATE.soulGreen = new ImageIcon("src/alpha/imgs/soul_green.png");
+        STATE.bounds = new Teleporter[4];
+        STATE.bounds[0] = new Teleporter(20, 0, 460, 30, 0);
+        STATE.bounds[1] = new Teleporter(480, 20, 30, 460, 1);
+        STATE.bounds[2] = new Teleporter(20, 480, 460, 30, 2);
+        STATE.bounds[3] = new Teleporter(0, 20, 30, 460, 3);
+        STATE.moveBorder = new Bound[4];
+        STATE.moveBorder[0] = new Bound(0, 0, 500, 20);
+        STATE.moveBorder[1] = new Bound(480, 0, 20, 500);
+        STATE.moveBorder[2] = new Bound(0, 480, 500, 20);
+        STATE.moveBorder[3] = new Bound(0, 0, 20, 500);
+        STATE.cSystem = new CoordinateSystem();
+        STATE.frame = new JFrame();
+        STATE.gp = new GamePanel();
+        STATE.player = new Soul(225, 225, 25, 25);
+        STATE.bones = new Vector<Bone>();
+        STATE.spears = new Vector<Spear>();
+        STATE.warnings = new Vector<Warning>();
+        STATE.platforms = new Vector<Platform>();
+        STATE.frame.add(STATE.gp);
 
         Toolkit tk = Toolkit.getDefaultToolkit();
 
-        frame.setSize(tk.getScreenSize().width, tk.getScreenSize().height);
-        frame.setVisible(true);
-        frame.setFocusable(true);
+        STATE.frame.setSize(tk.getScreenSize().width, tk.getScreenSize().height);
+        STATE.frame.setVisible(true);
+        STATE.frame.setFocusable(true);
 
-        frame.setResizable(false);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        if (frame.isFocused()) {
-            frame.setTitle("UNDERTALE");
+        STATE.frame.setResizable(false);
+        STATE.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        if (STATE.frame.isFocused()) {
+            STATE.frame.setTitle("UNDERTALE");
         } else {
-            frame.setTitle("UNDERTALE: CONCENTRATE!");
+            STATE.frame.setTitle("UNDERTALE: CONCENTRATE!");
         }
-        frame.addKeyListener(gp);
-        t = new Thread(gp);
-        t.start();
+        STATE.frame.addKeyListener(STATE.gp);
+        STATE.t = new Thread(STATE.gp);
+        STATE.t.start();
 
-        deltaX = (Test.frame.getWidth() - 500) / 2;
-        deltaY = (Test.frame.getHeight() - 500) / 2;
+        STATE.deltaX = (Test.STATE.frame.getWidth() - 500) / 2;
+        STATE.deltaY = (Test.STATE.frame.getHeight() - 500) / 2;
     }
 }
 
 class GamePanel extends JPanel implements Runnable, KeyListener {
     public void paint(Graphics g) {
-        g.fillRect(0, 0, Test.frame.getWidth(), Test.frame.getHeight());
+        g.fillRect(0, 0, Test.STATE.frame.getWidth(), Test.STATE.frame.getHeight());
         this.drawBound(g);
         this.drawStatus(g);
 
-        if (Test.player.hp > 0) {
+        if (Test.STATE.player.hp > 0) {
             this.drawSoul(g);
             this.drawHP(g);
         }
-        this.drawWarnings(Test.warnings, g);
-        this.drawBones(Test.bones, g);
+        this.drawWarnings(Test.STATE.warnings, g);
+        this.drawBones(Test.STATE.bones, g);
         this.drawSpear(g);
 
         this.drawGameStatus(g);
-        if (Test.win) {
+        if (Test.STATE.win) {
             this.drawWin(g);
         }
-        if (Test.cSystem.activated) {
+        if (Test.STATE.cSystem.activated) {
             this.drawCoordinateSystem(g);
             // Draw All functions
-            for (FunctionAttack a : Test.cSystem.functionAttacks) {
+            for (FunctionAttack a : Test.STATE.cSystem.functionAttacks) {
                 if (a.active) {
                     g.setColor(Color.RED);
                     //将每一个平面直角坐标系点都转化为屏幕直角坐标系点
                     int[] intxs = new int[50];
                     int[] intys = new int[50];
                     for (int i = 0; i < 50; i++) {
-                        intys[i] = (int) (250 - a.ys[i] + Test.deltaY);
-                        intxs[i] = (int) (250 + a.xs[i] + Test.deltaX);
+                        intys[i] = (int) (250 - a.ys[i] + Test.STATE.deltaY);
+                        intxs[i] = (int) (250 + a.xs[i] + Test.STATE.deltaX);
                     }
                     g.drawPolyline(intxs, intys, 50);
                 }
             }
         }
-        if (Test.player.soulMode.equals("Blue")) {
+        if (Test.STATE.player.soulMode.equals("Blue")) {
             this.drawGravityDirection(g);
         }
     }
@@ -138,46 +120,46 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     public void drawBound(Graphics g) {
         // draw the boundaries
         g.setColor(Color.WHITE);
-        for (Bound bound : Test.moveBorder) {
-            g.fillRect((int) bound.x + Test.deltaX, (int) bound.y + Test.deltaY, bound.width, bound.height);
+        for (Bound bound : Test.STATE.moveBorder) {
+            g.fillRect((int) bound.x + Test.STATE.deltaX, (int) bound.y + Test.STATE.deltaY, bound.width, bound.height);
         }
 
-        for (Teleporter e : Test.bounds) {
+        for (Teleporter e : Test.STATE.bounds) {
             if (e.activated) {
                 g.setColor(Color.BLUE);
-                g.fillRect((int) (e.x + Test.deltaX), (int) (e.y + Test.deltaY), (int) e.width, (int) e.height);
+                g.fillRect((int) (e.x + Test.STATE.deltaX), (int) (e.y + Test.STATE.deltaY), (int) e.width, (int) e.height);
             }
         }
     }
 
     public void drawSoul(Graphics g) {
-        if (Test.player.soulMode.equals("Red")) {
-            if ((Test.ticks % 5 != 0 && Test.player.invincibleFrames > 0) || Test.player.invincibleFrames <= 0)
-                g.drawImage(Test.soulRed.getImage(), (int) (Test.player.x + Test.deltaX), (int) (Test.player.y + Test.deltaY), (int) Test.player.width, (int) Test.player.height, this);
-        } else if (Test.player.soulMode.equals("Blue")) {
-            if ((Test.ticks % 5 != 0 && Test.player.invincibleFrames > 0) || Test.player.invincibleFrames <= 0)
-                switch (Test.player.gDirection) {
+        if (Test.STATE.player.soulMode.equals("Red")) {
+            if ((Test.STATE.ticks % 5 != 0 && Test.STATE.player.invincibleFrames > 0) || Test.STATE.player.invincibleFrames <= 0)
+                g.drawImage(Test.STATE.soulRed.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
+        } else if (Test.STATE.player.soulMode.equals("Blue")) {
+            if ((Test.STATE.ticks % 5 != 0 && Test.STATE.player.invincibleFrames > 0) || Test.STATE.player.invincibleFrames <= 0)
+                switch (Test.STATE.player.gDirection) {
                     case 0:
-                        g.drawImage(Test.soulBlue_up.getImage(), (int) (Test.player.x + Test.deltaX), (int) (Test.player.y + Test.deltaY), (int) Test.player.width, (int) Test.player.height, this);
+                        g.drawImage(Test.STATE.soulBlue_up.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
                         break;
                     case 1:
-                        g.drawImage(Test.soulBlue_right.getImage(), (int) (Test.player.x + Test.deltaX), (int) (Test.player.y + Test.deltaY), (int) Test.player.width, (int) Test.player.height, this);
+                        g.drawImage(Test.STATE.soulBlue_right.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
                         break;
                     case 2:
-                        g.drawImage(Test.soulBlue_down.getImage(), (int) (Test.player.x + Test.deltaX), (int) (Test.player.y + Test.deltaY), (int) Test.player.width, (int) Test.player.height, this);
+                        g.drawImage(Test.STATE.soulBlue_down.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
                         break;
                     case 3:
-                        g.drawImage(Test.soulBlue_left.getImage(), (int) (Test.player.x + Test.deltaX), (int) (Test.player.y + Test.deltaY), (int) Test.player.width, (int) Test.player.height, this);
+                        g.drawImage(Test.STATE.soulBlue_left.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
                         break;
                 }
 
 
-        } else if (Test.player.soulMode.equals("Green")) {
-            if ((Test.ticks % 5 != 0 && Test.player.invincibleFrames > 0) || Test.player.invincibleFrames <= 0)
-                g.drawImage(Test.soulGreen.getImage(), (int) (Test.player.x + Test.deltaX), (int) (Test.player.y + Test.deltaY), (int) Test.player.width, (int) Test.player.height, this);
+        } else if (Test.STATE.player.soulMode.equals("Green")) {
+            if ((Test.STATE.ticks % 5 != 0 && Test.STATE.player.invincibleFrames > 0) || Test.STATE.player.invincibleFrames <= 0)
+                g.drawImage(Test.STATE.soulGreen.getImage(), (int) (Test.STATE.player.x + Test.STATE.deltaX), (int) (Test.STATE.player.y + Test.STATE.deltaY), (int) Test.STATE.player.width, (int) Test.STATE.player.height, this);
 
             g.setColor(Color.CYAN);
-            g.fillRect((int) (Test.player.shield.x + Test.deltaX), (int) (Test.player.shield.y + Test.deltaY), Test.player.shield.width, Test.player.shield.height);
+            g.fillRect((int) (Test.STATE.player.shield.x + Test.STATE.deltaX), (int) (Test.STATE.player.shield.y + Test.STATE.deltaY), Test.STATE.player.shield.width, Test.STATE.player.shield.height);
 
         }
 
@@ -185,16 +167,16 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public void drawHP(Graphics g) {
         g.setColor(Color.YELLOW);
-        g.fillRect(Test.deltaX + 300, 530 + Test.deltaY, Test.player.hp * 2, 35);
+        g.fillRect(Test.STATE.deltaX + 300, 530 + Test.STATE.deltaY, Test.STATE.player.hp * 2, 35);
         g.setFont(new Font("Monster Friend Back", Font.BOLD, 25));
-        if (Test.player.karma == 0) {
+        if (Test.STATE.player.karma == 0) {
             g.setColor(Color.WHITE);
         } else {
             g.setColor(Color.MAGENTA);
         }
-        g.drawString("      " + Test.player.hp + "  /", 120 + Test.deltaX, 530 + Test.deltaY);
+        g.drawString("      " + Test.STATE.player.hp + "  /", 120 + Test.STATE.deltaX, 530 + Test.STATE.deltaY);
         g.setColor(Color.MAGENTA);
-        g.fillRect(Test.deltaX + 300 + Test.player.hp * 2 - Test.player.karma * 2, 530 + Test.deltaY, Test.player.karma * 2,
+        g.fillRect(Test.STATE.deltaX + 300 + Test.STATE.player.hp * 2 - Test.STATE.player.karma * 2, 530 + Test.STATE.deltaY, Test.STATE.player.karma * 2,
             35);
 
     }
@@ -214,15 +196,15 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             } else if (b.get(i).color.equals("Orange")) {
                 g.setColor(Color.ORANGE);
             }
-            g.fillRect((int) (b.get(i).x + Test.deltaX), (int) (b.get(i).y + Test.deltaY), (int) b.get(i).width, (int) b.get(i).height);
+            g.fillRect((int) (b.get(i).x + Test.STATE.deltaX), (int) (b.get(i).y + Test.STATE.deltaY), (int) b.get(i).width, (int) b.get(i).height);
 
         }
     }
 
     public void drawPlatform(Graphics g) {
-        for (Platform p : Test.platforms) {
+        for (Platform p : Test.STATE.platforms) {
             g.setColor(Color.GREEN);
-            g.fillRect((int) (p.x + Test.deltaX), (int) (p.y + Test.deltaY), p.width, p.height);
+            g.fillRect((int) (p.x + Test.STATE.deltaX), (int) (p.y + Test.STATE.deltaY), p.width, p.height);
         }
     }
 
@@ -230,7 +212,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
         for (int i = 0; i < w.size(); i++) {
             g.setColor(new Color((int) (250 - (w.get(i).duration / (double) w.get(i).maxDuration) * 250), (int) ((w.get(i).duration / (double) w.get(i).maxDuration) * 250), 0));
-            g.fillRect((int) (w.get(i).x + Test.deltaX), (int) (w.get(i).y + Test.deltaY), (int) w.get(i).width, (int) w.get(i).height);
+            g.fillRect((int) (w.get(i).x + Test.STATE.deltaX), (int) (w.get(i).y + Test.STATE.deltaY), (int) w.get(i).width, (int) w.get(i).height);
         }
     }
 
@@ -238,29 +220,29 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
         g.setColor(Color.YELLOW);
         g.setFont(new Font("宋体", Font.BOLD, 20));
 
-        //g.drawString("游戏时间:" + Math.floorDiv(Test.ticks, 30) + "", 200 + Test.deltaX, 520 + Test.deltaY);
-        //g.drawString("1.通过↑↓←→控制SOUL", -500 + Test.deltaX, Test.deltaY);
-        //g.drawString("2.躲避灰色方块", -500 + Test.deltaX, Test.deltaY + 25);
-        //g.drawString("3.当生命值为0时，游戏结束", -500 + Test.deltaX, Test.deltaY + 50);
-        //g.drawString("4. 蓝色的攻击-> 不要动  橙色攻击->动",-500 + Test.deltaX, Test.deltaY + 75);
-        //g.drawString("5. 红色：正常 蓝色：重力 绿色：护盾", -500+Test.deltaX, Test.deltaY+100);
-        //g.drawString("6. 遇到黄色的矛，不要格挡。",-500 + Test.deltaX, Test.deltaY + 125);
+        //g.drawString("游戏时间:" + Math.floorDiv(Test.STATE.ticks, 30) + "", 200 + Test.STATE.deltaX, 520 + Test.STATE.deltaY);
+        //g.drawString("1.通过↑↓←→控制SOUL", -500 + Test.STATE.deltaX, Test.STATE.deltaY);
+        //g.drawString("2.躲避灰色方块", -500 + Test.STATE.deltaX, Test.STATE.deltaY + 25);
+        //g.drawString("3.当生命值为0时，游戏结束", -500 + Test.STATE.deltaX, Test.STATE.deltaY + 50);
+        //g.drawString("4. 蓝色的攻击-> 不要动  橙色攻击->动",-500 + Test.STATE.deltaX, Test.STATE.deltaY + 75);
+        //g.drawString("5. 红色：正常 蓝色：重力 绿色：护盾", -500+Test.STATE.deltaX, Test.STATE.deltaY+100);
+        //g.drawString("6. 遇到黄色的矛，不要格挡。",-500 + Test.STATE.deltaX, Test.STATE.deltaY + 125);
     }
 
     public void drawGravityDirection(Graphics g) {
         g.setFont(new Font("宋体", Font.BOLD, 100));
-        switch (Test.player.gDirection) {
+        switch (Test.STATE.player.gDirection) {
             case 0:
-                g.drawString("↑", -500 + Test.deltaX, 300 + Test.deltaY);
+                g.drawString("↑", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
                 break;
             case 1:
-                g.drawString("→", -500 + Test.deltaX, 300 + Test.deltaY);
+                g.drawString("→", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
                 break;
             case 2:
-                g.drawString("↓", -500 + Test.deltaX, 300 + Test.deltaY);
+                g.drawString("↓", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
                 break;
             case 3:
-                g.drawString("←", -500 + Test.deltaX, 300 + Test.deltaY);
+                g.drawString("←", -500 + Test.STATE.deltaX, 300 + Test.STATE.deltaY);
                 break;
         }
 
@@ -269,13 +251,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     public void drawGameStatus(Graphics g) {
         g.setColor(Color.YELLOW);
         g.setFont(new Font("Determination Sans", Font.BOLD, 40));
-        if (Test.paused && !Test.over) {
-            g.drawString("Press P to Continue", Test.deltaX + 75, -20 + Test.deltaY);
-        } else if (!Test.paused && !Test.over) {
-            g.drawString("Press P to Pause", Test.deltaX + 75, -20 + Test.deltaY);
-        } else if (Test.over) {
+        if (Test.STATE.paused && !Test.STATE.over) {
+            g.drawString("Press P to Continue", Test.STATE.deltaX + 75, -20 + Test.STATE.deltaY);
+        } else if (!Test.STATE.paused && !Test.STATE.over) {
+            g.drawString("Press P to Pause", Test.STATE.deltaX + 75, -20 + Test.STATE.deltaY);
+        } else if (Test.STATE.over) {
             g.setColor(Color.WHITE);
-            g.drawString("Press R to Restart", Test.deltaX + 75, -20 + Test.deltaY);
+            g.drawString("Press R to Restart", Test.STATE.deltaX + 75, -20 + Test.STATE.deltaY);
 
         }
     }
@@ -284,33 +266,33 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
         g.setColor(Color.YELLOW);
         g.setFont(new Font("宋体", Font.BOLD, 100));
-        g.drawString("你赢了!!!!!!", Test.deltaX - 150, Test.deltaY + 450);
+        g.drawString("你赢了!!!!!!", Test.STATE.deltaX - 150, Test.STATE.deltaY + 450);
 
     }
 
     public void drawCoordinateSystem(Graphics g) {
         g.setColor(Color.GREEN);
-        g.drawLine(0 + Test.deltaX, 250 + Test.deltaY, 500 + Test.deltaX, 250 + Test.deltaY);
-        g.drawLine(250 + Test.deltaX, 0 + Test.deltaY, 250 + Test.deltaX, 500 + Test.deltaY);
+        g.drawLine(0 + Test.STATE.deltaX, 250 + Test.STATE.deltaY, 500 + Test.STATE.deltaX, 250 + Test.STATE.deltaY);
+        g.drawLine(250 + Test.STATE.deltaX, 0 + Test.STATE.deltaY, 250 + Test.STATE.deltaX, 500 + Test.STATE.deltaY);
         g.setColor(Color.YELLOW);
-        g.drawString("(" + (int) (Test.player.x - 250) + "," + (int) (250 - Test.player.y) + ")", -350 + Test.deltaX, 160 + Test.deltaY);
-        for (int i = 0; i < Test.cSystem.functionAttacks.size(); i++) {
-            FunctionAttack f = Test.cSystem.functionAttacks.get(i);
-            g.drawString(f.equation, -700 + Test.deltaX, 200 + 40 * i + Test.deltaY);
+        g.drawString("(" + (int) (Test.STATE.player.x - 250) + "," + (int) (250 - Test.STATE.player.y) + ")", -350 + Test.STATE.deltaX, 160 + Test.STATE.deltaY);
+        for (int i = 0; i < Test.STATE.cSystem.functionAttacks.size(); i++) {
+            FunctionAttack f = Test.STATE.cSystem.functionAttacks.get(i);
+            g.drawString(f.equation, -700 + Test.STATE.deltaX, 200 + 40 * i + Test.STATE.deltaY);
 
         }
     }
 
     public void drawFunctionAttacks(Graphics g) {
-        for (FunctionAttack a : Test.cSystem.functionAttacks) {
+        for (FunctionAttack a : Test.STATE.cSystem.functionAttacks) {
             if (a.active) {
                 g.setColor(Color.RED);
                 //将每一个平面直角坐标系点都转化为屏幕直角坐标系点
                 int[] intxs = new int[50];
                 int[] intys = new int[50];
                 for (int i = 0; i < 50; i++) {
-                    intys[i] = (int) (250 - a.ys[i] + Test.deltaY);
-                    intxs[i] = (int) (250 + a.xs[i] + Test.deltaX);
+                    intys[i] = (int) (250 - a.ys[i] + Test.STATE.deltaY);
+                    intxs[i] = (int) (250 + a.xs[i] + Test.STATE.deltaX);
                 }
                 Graphics2D graphics2d = (Graphics2D) g;
                 graphics2d.setStroke(new BasicStroke(3));
@@ -321,13 +303,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public void drawSpear(Graphics g) {
 
-        for (Spear s : Test.spears) {
+        for (Spear s : Test.STATE.spears) {
             if (s.color.equals("Magenta")) {
                 g.setColor(Color.MAGENTA);
             } else if (s.color.equals("Yellow")) {
                 g.setColor(Color.YELLOW);
             }
-            g.fillRect((int) (s.x + Test.deltaX), (int) (s.y + Test.deltaY), s.width, s.height);
+            g.fillRect((int) (s.x + Test.STATE.deltaX), (int) (s.y + Test.STATE.deltaY), s.width, s.height);
         }
 
     }
@@ -339,12 +321,12 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
         while (true) {
 
             // 防止死循环不执行？？
-            Test.frame.setTitle("Undertale");
-            if (Test.over && Test.restart) {
+            Test.STATE.frame.setTitle("Undertale");
+            if (Test.STATE.over && Test.STATE.restart) {
                 this.gameRestart();
             }
 
-            if (!Test.paused && !Test.over && !Test.win) {
+            if (!Test.STATE.paused && !Test.STATE.over && !Test.STATE.win) {
 
                 try {
                     Thread.sleep(1000 / 60);
@@ -352,16 +334,16 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-                Test.player.saveLocation();
+                Test.STATE.player.saveLocation();
                 this.moveThePlayer();
                 this.checkTeleport();
-                if (Test.player.soulMode == "Red") {
+                if (Test.STATE.player.soulMode == "Red") {
                     this.holdsPlayerInBounds();
                 }
                 this.gravity();
 
                 // 更新玩家碰撞箱
-                Test.player.updateHitbox();
+                Test.STATE.player.updateHitbox();
 
                 this.checkHit();
                 // 移动所有的攻击
@@ -384,15 +366,15 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 // Karma减血
                 this.karmaHpDecrease();
 
-                Test.ticks += 1;
+                Test.STATE.ticks += 1;
 
                 //减少函数延迟
-                Test.cSystem.delayDecrease();
+                Test.STATE.cSystem.delayDecrease();
                 //减少无敌时间
                 this.drainInvincibility();
                 //检测游戏结束
-                if (Test.player.hp <= 0) {
-                    Test.over = true;
+                if (Test.STATE.player.hp <= 0) {
+                    Test.STATE.over = true;
 
                 }
 
@@ -403,240 +385,240 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     public void drainInvincibility() {
-        if (Test.player.invincibleFrames > 0) {
-            Test.player.invincibleFrames--;
+        if (Test.STATE.player.invincibleFrames > 0) {
+            Test.STATE.player.invincibleFrames--;
         }
     }
 
     public void moveAttacks() {
         // TODO Auto-generated method stub
-        for (int i = 0; i < Test.bones.size(); i++) {
+        for (int i = 0; i < Test.STATE.bones.size(); i++) {
 
-            Test.bones.get(i).move();
+            Test.STATE.bones.get(i).move();
         }
-        for (int i = 0; i < Test.spears.size(); i++) {
-            Test.spears.get(i).move();
+        for (int i = 0; i < Test.STATE.spears.size(); i++) {
+            Test.STATE.spears.get(i).move();
         }
     }
 
     public void movePlatforms() {
-        for (Platform p : Test.platforms) {
+        for (Platform p : Test.STATE.platforms) {
             p.move();
         }
     }
 
     public void holdsPlayerInBounds() {
-        if (Test.player.x < Test.moveBorder[3].x + Test.moveBorder[3].width) {
-            Test.player.x = Test.moveBorder[3].x + Test.moveBorder[3].width;
+        if (Test.STATE.player.x < Test.STATE.moveBorder[3].x + Test.STATE.moveBorder[3].width) {
+            Test.STATE.player.x = Test.STATE.moveBorder[3].x + Test.STATE.moveBorder[3].width;
         }
-        if (Test.player.x > Test.moveBorder[1].x - Test.player.width) {
-            Test.player.x = Test.moveBorder[1].x - Test.player.width;
+        if (Test.STATE.player.x > Test.STATE.moveBorder[1].x - Test.STATE.player.width) {
+            Test.STATE.player.x = Test.STATE.moveBorder[1].x - Test.STATE.player.width;
         }
-        if (Test.player.y < Test.moveBorder[0].y + Test.moveBorder[0].height) {
-            Test.player.y = Test.moveBorder[0].y + Test.moveBorder[0].height;
+        if (Test.STATE.player.y < Test.STATE.moveBorder[0].y + Test.STATE.moveBorder[0].height) {
+            Test.STATE.player.y = Test.STATE.moveBorder[0].y + Test.STATE.moveBorder[0].height;
         }
-        if (Test.player.y > Test.moveBorder[2].y - Test.player.height) {
-            Test.player.y = Test.moveBorder[2].y - Test.player.height;
+        if (Test.STATE.player.y > Test.STATE.moveBorder[2].y - Test.STATE.player.height) {
+            Test.STATE.player.y = Test.STATE.moveBorder[2].y - Test.STATE.player.height;
         }
     }
 
     public void moveThePlayer() {
-        if (Test.player.up && !Test.player.hitbox.intersects(Test.moveBorder[0].hitbox)) {
+        if (Test.STATE.player.up && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[0].hitbox)) {
 
-            Test.player.y -= Math.ceil((double) Test.player.speed / 2);
+            Test.STATE.player.y -= Math.ceil((double) Test.STATE.player.speed / 2);
 
-            Test.player.directShield(0);
+            Test.STATE.player.directShield(0);
         }
-        if (Test.player.down && !Test.player.hitbox.intersects(Test.moveBorder[2].hitbox)) {
+        if (Test.STATE.player.down && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[2].hitbox)) {
 
-            Test.player.y += Math.ceil((double) Test.player.speed / 2);
+            Test.STATE.player.y += Math.ceil((double) Test.STATE.player.speed / 2);
 
-            Test.player.directShield(2);
+            Test.STATE.player.directShield(2);
         }
-        if (Test.player.left && !Test.player.hitbox.intersects(Test.moveBorder[3].hitbox)) {
+        if (Test.STATE.player.left && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[3].hitbox)) {
 
-            Test.player.x -= Math.ceil((double) Test.player.speed / 2);
+            Test.STATE.player.x -= Math.ceil((double) Test.STATE.player.speed / 2);
 
-            Test.player.directShield(3);
+            Test.STATE.player.directShield(3);
         }
-        if (Test.player.right && !Test.player.hitbox.intersects(Test.moveBorder[1].hitbox)) {
+        if (Test.STATE.player.right && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[1].hitbox)) {
 
-            Test.player.x += Math.ceil((double) Test.player.speed / 2);
+            Test.STATE.player.x += Math.ceil((double) Test.STATE.player.speed / 2);
 
-            Test.player.directShield(1);
+            Test.STATE.player.directShield(1);
         }
     }
 
     public void movePlatform() {
-        for (Platform p : Test.platforms) {
+        for (Platform p : Test.STATE.platforms) {
             p.move();
         }
     }
 
     public void scheduleAttack() {
-        if (Test.ticks >= 60 && Test.ticks < 120) {
+        if (Test.STATE.ticks >= 60 && Test.STATE.ticks < 120) {
 
             this.boneSpike(2);
-        } else if (Test.ticks >= 120 && Test.ticks < 300) {
+        } else if (Test.STATE.ticks >= 120 && Test.STATE.ticks < 300) {
             this.redtify();
-        } else if (Test.ticks >= 300 && Test.ticks <= 600) {
+        } else if (Test.STATE.ticks >= 300 && Test.STATE.ticks <= 600) {
 
             this.boneShaft();
-        } else if (Test.ticks > 600 && Test.ticks <= 900) {
+        } else if (Test.STATE.ticks > 600 && Test.STATE.ticks <= 900) {
             this.healPlayer(16);
-        } else if (Test.ticks > 900 && Test.ticks <= 1500) {
+        } else if (Test.STATE.ticks > 900 && Test.STATE.ticks <= 1500) {
             this.crossBones();
-        } else if (Test.ticks > 1500 && Test.ticks <= 1800) {
+        } else if (Test.STATE.ticks > 1500 && Test.STATE.ticks <= 1800) {
             this.healPlayer(20);
 
-        } else if (Test.ticks > 1800 && Test.ticks <= 2760) {
+        } else if (Test.STATE.ticks > 1800 && Test.STATE.ticks <= 2760) {
             this.boneSpike((int) (Math.random() * 4));
-        } else if (Test.ticks > 2760 && Test.ticks <= 3060) {
+        } else if (Test.STATE.ticks > 2760 && Test.STATE.ticks <= 3060) {
             this.healPlayer(20);
             this.redtify();
-        } else if (Test.ticks > 3060 && Test.ticks <= 3690) {
+        } else if (Test.STATE.ticks > 3060 && Test.STATE.ticks <= 3690) {
             this.boneRain(1);
             //this.bluetify(2);
-        } else if (Test.ticks > 3690 && Test.ticks <= 3900) {
+        } else if (Test.STATE.ticks > 3690 && Test.STATE.ticks <= 3900) {
             this.healPlayer(20);
-        } else if (Test.ticks > 3900 && Test.ticks <= 4200) {
+        } else if (Test.STATE.ticks > 3900 && Test.STATE.ticks <= 4200) {
 
             int dir = 0;
-            if (Test.player.up) {
+            if (Test.STATE.player.up) {
                 dir = 0;
-            } else if (Test.player.right) {
+            } else if (Test.STATE.player.right) {
                 dir = 1;
-            } else if (Test.player.down) {
+            } else if (Test.STATE.player.down) {
                 dir = 2;
-            } else if (Test.player.left) {
+            } else if (Test.STATE.player.left) {
                 dir = 3;
             }
             this.boneRain(dir);
             //this.bluetify(2);
-        } else if (Test.ticks > 4200 && Test.ticks <= 4500) {
+        } else if (Test.STATE.ticks > 4200 && Test.STATE.ticks <= 4500) {
             this.healPlayer(20);
-        } else if (Test.ticks > 4500 && Test.ticks <= 4800) {
+        } else if (Test.STATE.ticks > 4500 && Test.STATE.ticks <= 4800) {
             this.boneRain(3);
             //this.bluetify(0);
-        } else if (Test.ticks > 4800 && Test.ticks <= 5100) {
+        } else if (Test.STATE.ticks > 4800 && Test.STATE.ticks <= 5100) {
             this.healPlayer(20);
-        } else if (Test.ticks > 5100 && Test.ticks <= 5400) {
+        } else if (Test.STATE.ticks > 5100 && Test.STATE.ticks <= 5400) {
             int dir = 0;
-            if (Test.player.up) {
+            if (Test.STATE.player.up) {
                 dir = 2;
-            } else if (Test.player.right) {
+            } else if (Test.STATE.player.right) {
                 dir = 3;
-            } else if (Test.player.down) {
+            } else if (Test.STATE.player.down) {
                 dir = 0;
-            } else if (Test.player.left) {
+            } else if (Test.STATE.player.left) {
                 dir = 1;
             }
             this.boneRain(dir);
             //this.bluetify(0);
-        } else if (Test.ticks > 5400 && Test.ticks <= 5700) {
+        } else if (Test.STATE.ticks > 5400 && Test.STATE.ticks <= 5700) {
             this.healPlayer(20);
-        } else if (Test.ticks > 5700 && Test.ticks <= 6000) {
+        } else if (Test.STATE.ticks > 5700 && Test.STATE.ticks <= 6000) {
             this.boneRain(0);
             //this.bluetify(1);
-        } else if (Test.ticks > 6000 && Test.ticks <= 6300) {
+        } else if (Test.STATE.ticks > 6000 && Test.STATE.ticks <= 6300) {
             this.healPlayer(20);
-        } else if (Test.ticks > 6300 && Test.ticks <= 7200) {
-            if (Test.ticks % 60 == 0) {
+        } else if (Test.STATE.ticks > 6300 && Test.STATE.ticks <= 7200) {
+            if (Test.STATE.ticks % 60 == 0) {
                 this.bluetify((int) (Math.random() * 4));
             }
             this.sniperBone(90);
-        } else if (Test.ticks > 7200 && Test.ticks <= 7800) {
+        } else if (Test.STATE.ticks > 7200 && Test.STATE.ticks <= 7800) {
             this.healPlayer(20);
             this.redtify();
-        } else if (Test.ticks > 7800 && Test.ticks <= 9000) {
+        } else if (Test.STATE.ticks > 7800 && Test.STATE.ticks <= 9000) {
             if (Math.random() < 0.5) {
                 this.foldBones(0);
             } else {
                 this.foldBones(1);
             }
-        } else if (Test.ticks > 9000 && Test.ticks <= 9600) {
+        } else if (Test.STATE.ticks > 9000 && Test.STATE.ticks <= 9600) {
             this.healPlayer(12);
-        } else if (Test.ticks > 9600 && Test.ticks <= 10500) {
+        } else if (Test.STATE.ticks > 9600 && Test.STATE.ticks <= 10500) {
             this.setTeleportersState(true);
-            if (Test.ticks % 240 == 0) {
+            if (Test.STATE.ticks % 240 == 0) {
                 this.boneLazer((int) (Math.random() * 4));
             }
-        } else if (Test.ticks > 10500 && Test.ticks <= 10800) {
+        } else if (Test.STATE.ticks > 10500 && Test.STATE.ticks <= 10800) {
             this.setTeleportersState(false);
             this.healPlayer(7);
-        } else if (Test.ticks > 10800 && Test.ticks <= 12000) {
+        } else if (Test.STATE.ticks > 10800 && Test.STATE.ticks <= 12000) {
             this.setTeleportersState(true);
             this.laserTrap();
 
-        } else if (Test.ticks > 12000 && Test.ticks <= 12600) {
-            Test.warnings.removeAllElements();
+        } else if (Test.STATE.ticks > 12000 && Test.STATE.ticks <= 12600) {
+            Test.STATE.warnings.removeAllElements();
             this.setTeleportersState(false);
             this.healPlayer(7);
 
-        } else if (Test.ticks > 12600 && Test.ticks <= 12900) {
+        } else if (Test.STATE.ticks > 12600 && Test.STATE.ticks <= 12900) {
             this.gasterBlasters();
             this.sniperBone(90);
-        } else if (Test.ticks > 12900 && Test.ticks <= 13200) {
+        } else if (Test.STATE.ticks > 12900 && Test.STATE.ticks <= 13200) {
             this.sniperBone((int) (Math.random() * 30 + 10));
-        } else if (Test.ticks > 13200 && Test.ticks <= 13500) {
+        } else if (Test.STATE.ticks > 13200 && Test.STATE.ticks <= 13500) {
             this.healPlayer(12);
-        } else if (Test.ticks > 13500 && Test.ticks <= 14000) {
+        } else if (Test.STATE.ticks > 13500 && Test.STATE.ticks <= 14000) {
             this.boneRain(2);
             this.sniperBone(180);
 
-        } else if (Test.ticks > 14000 && Test.ticks <= 14300) {
+        } else if (Test.STATE.ticks > 14000 && Test.STATE.ticks <= 14300) {
             this.healPlayer(3);
-        } else if (Test.ticks > 14300 && Test.ticks <= 14900) {
+        } else if (Test.STATE.ticks > 14300 && Test.STATE.ticks <= 14900) {
             this.foldBones(0);
             this.boneShaft();
 
-        } else if (Test.ticks >= 14900 && Test.ticks <= 15200) {
+        } else if (Test.STATE.ticks >= 14900 && Test.STATE.ticks <= 15200) {
             this.healPlayer(7);
-        } else if (Test.ticks > 15200 && Test.ticks <= 15680) {
+        } else if (Test.STATE.ticks > 15200 && Test.STATE.ticks <= 15680) {
             this.boneRain((int) (Math.random() * 4));
             //this.bluetify((int) (Math.random()*  4));
-        } else if (Test.ticks > 15680 && Test.ticks <= 16000) {
+        } else if (Test.STATE.ticks > 15680 && Test.STATE.ticks <= 16000) {
             this.healPlayer(8);
             this.redtify();
-        } else if (Test.ticks > 16000 && Test.ticks <= 19600) {
+        } else if (Test.STATE.ticks > 16000 && Test.STATE.ticks <= 19600) {
             this.setCoordinateSystemState(true);
-            Test.cSystem.createFunctionAttack();
+            Test.STATE.cSystem.createFunctionAttack();
 
 
-        } else if (Test.ticks > 19600 && Test.ticks <= 20000) {
+        } else if (Test.STATE.ticks > 19600 && Test.STATE.ticks <= 20000) {
             this.setCoordinateSystemState(false);
-            Test.cSystem.functionAttacks.removeAllElements();
+            Test.STATE.cSystem.functionAttacks.removeAllElements();
             this.healPlayer(12);
-        } else if (Test.ticks > 20000 && Test.ticks <= 20600) {
+        } else if (Test.STATE.ticks > 20000 && Test.STATE.ticks <= 20600) {
 
             this.augmentedGasterBlasters();
             this.sniperBone(60);
-        } else if (Test.ticks >= 20600 && Test.ticks < 21000) {
-            Test.player.hp = Test.player.hpMax;
-        } else if (Test.ticks > 21000 && Test.ticks <= 21300) {
+        } else if (Test.STATE.ticks >= 20600 && Test.STATE.ticks < 21000) {
+            Test.STATE.player.hp = Test.STATE.player.hpMax;
+        } else if (Test.STATE.ticks > 21000 && Test.STATE.ticks <= 21300) {
             this.bluetify(2);
             this.crossBonesHorizontal();
-        } else if (Test.ticks > 21300 && Test.ticks <= 22000) {
+        } else if (Test.STATE.ticks > 21300 && Test.STATE.ticks <= 22000) {
             this.healPlayer(13);
-        } else if (Test.ticks > 22000 && Test.ticks <= 22420) {
+        } else if (Test.STATE.ticks > 22000 && Test.STATE.ticks <= 22420) {
             this.bluetify(2);
             this.blueBone();
-        } else if (Test.ticks > 22420 && Test.ticks <= 23020) {
+        } else if (Test.STATE.ticks > 22420 && Test.STATE.ticks <= 23020) {
             this.healPlayer(16);
-        } else if (Test.ticks > 23020 && Test.ticks <= 23620) {
+        } else if (Test.STATE.ticks > 23020 && Test.STATE.ticks <= 23620) {
             this.spearAttack();
-        } else if (Test.ticks > 23620 && Test.ticks <= 23920) {
+        } else if (Test.STATE.ticks > 23620 && Test.STATE.ticks <= 23920) {
             this.healPlayer(12);
-        } else if (Test.ticks > 23920 && Test.ticks <= 25000) {
+        } else if (Test.STATE.ticks > 23920 && Test.STATE.ticks <= 25000) {
             this.spearAttackTwo();
-        } else if (Test.ticks > 25000 && Test.ticks <= 25400) {
+        } else if (Test.STATE.ticks > 25000 && Test.STATE.ticks <= 25400) {
             this.healPlayer(20);
-        } else if (Test.ticks > 25400 && Test.ticks <= 26000) {
+        } else if (Test.STATE.ticks > 25400 && Test.STATE.ticks <= 26000) {
             this.spearAttackThree();
-        } else if (Test.ticks >= 26000 && Test.ticks < 26400) {
+        } else if (Test.STATE.ticks >= 26000 && Test.STATE.ticks < 26400) {
             this.healPlayer(20);
             this.bluetify(2);
-        } else if (Test.ticks >= 26400 && Test.ticks < 27000) {
+        } else if (Test.STATE.ticks >= 26400 && Test.STATE.ticks < 27000) {
             this.platformOne();
         }
 
@@ -644,68 +626,68 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public void karmaHpDecrease() {
         // TODO Auto-generated method stub
-        if (Test.player.karma > 40) {
-            Test.player.karma = 40;
+        if (Test.STATE.player.karma > 40) {
+            Test.STATE.player.karma = 40;
         }
-        if (Test.player.karma == 40 && Test.player.hp > 1) {
-            Test.player.karma--;
-            Test.player.hp--;
+        if (Test.STATE.player.karma == 40 && Test.STATE.player.hp > 1) {
+            Test.STATE.player.karma--;
+            Test.STATE.player.hp--;
         }
-        if (Test.player.karma >= 30 && Test.player.karma < 40 && Test.player.hp > 1 && Test.ticks % 4 == 0) {
-            Test.player.karma--;
-            Test.player.hp -= 1;
-        } else if (Test.player.karma >= 20 && Test.player.karma < 30 && Test.ticks % 10 == 0 && Test.player.hp > 1) {
-            Test.player.karma--;
-            Test.player.hp -= 1;
-        } else if (Test.player.karma >= 10 && Test.player.karma < 20 && Test.ticks % 30 == 0 && Test.player.hp > 1) {
-            Test.player.karma--;
-            Test.player.hp -= 1;
-        } else if (Test.player.karma > 0 && Test.player.karma < 10 && Test.ticks % 60 == 0 && Test.player.hp > 1) {
-            Test.player.karma--;
-            Test.player.hp -= 1;
+        if (Test.STATE.player.karma >= 30 && Test.STATE.player.karma < 40 && Test.STATE.player.hp > 1 && Test.STATE.ticks % 4 == 0) {
+            Test.STATE.player.karma--;
+            Test.STATE.player.hp -= 1;
+        } else if (Test.STATE.player.karma >= 20 && Test.STATE.player.karma < 30 && Test.STATE.ticks % 10 == 0 && Test.STATE.player.hp > 1) {
+            Test.STATE.player.karma--;
+            Test.STATE.player.hp -= 1;
+        } else if (Test.STATE.player.karma >= 10 && Test.STATE.player.karma < 20 && Test.STATE.ticks % 30 == 0 && Test.STATE.player.hp > 1) {
+            Test.STATE.player.karma--;
+            Test.STATE.player.hp -= 1;
+        } else if (Test.STATE.player.karma > 0 && Test.STATE.player.karma < 10 && Test.STATE.ticks % 60 == 0 && Test.STATE.player.hp > 1) {
+            Test.STATE.player.karma--;
+            Test.STATE.player.hp -= 1;
         }
-//		if (Test.player.karma > 0 && Test.player.hp <= 5) {
-//			Test.player.karma--;
+//		if (Test.STATE.player.karma > 0 && Test.STATE.player.hp <= 5) {
+//			Test.STATE.player.karma--;
 //		}
     }
 
     @Override
     public void keyPressed(KeyEvent arg0) {
         if (arg0.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-            Test.ticks += 300;
+            Test.STATE.ticks += 300;
         }
         if (arg0.getKeyCode() == KeyEvent.VK_P) {
 
-            Test.paused = !Test.paused;
+            Test.STATE.paused = !Test.STATE.paused;
 
         }
         // TODO Auto-generated method stub
-        if (arg0.getKeyCode() == KeyEvent.VK_UP && (Test.player.gDirection != 0 || !Test.player.soulMode.equals("Blue"))) {
+        if (arg0.getKeyCode() == KeyEvent.VK_UP && (Test.STATE.player.gDirection != 0 || !Test.STATE.player.soulMode.equals("Blue"))) {
 
-            Test.player.up = true;
-
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_RIGHT && (Test.player.gDirection != 1 || !Test.player.soulMode.equals("Blue"))) {
-
-            Test.player.right = true;
+            Test.STATE.player.up = true;
 
         }
-        if (arg0.getKeyCode() == KeyEvent.VK_DOWN && (Test.player.gDirection != 2 || !Test.player.soulMode.equals("Blue"))) {
+        if (arg0.getKeyCode() == KeyEvent.VK_RIGHT && (Test.STATE.player.gDirection != 1 || !Test.STATE.player.soulMode.equals("Blue"))) {
 
-            Test.player.down = true;
-
-        }
-        if (arg0.getKeyCode() == KeyEvent.VK_LEFT && (Test.player.gDirection != 3 || !Test.player.soulMode.equals("Blue"))) {
-
-            Test.player.left = true;
+            Test.STATE.player.right = true;
 
         }
-        if (Test.over && arg0.getKeyCode() == KeyEvent.VK_R) {
+        if (arg0.getKeyCode() == KeyEvent.VK_DOWN && (Test.STATE.player.gDirection != 2 || !Test.STATE.player.soulMode.equals("Blue"))) {
 
-            Test.restart = true;
+            Test.STATE.player.down = true;
+
+        }
+        if (arg0.getKeyCode() == KeyEvent.VK_LEFT && (Test.STATE.player.gDirection != 3 || !Test.STATE.player.soulMode.equals("Blue"))) {
+
+            Test.STATE.player.left = true;
+
+        }
+        if (Test.STATE.over && arg0.getKeyCode() == KeyEvent.VK_R) {
+
+            Test.STATE.restart = true;
         }
         if (arg0.getKeyCode() == KeyEvent.VK_F8) {
-            Test.player.hp = Test.player.hpMax;
+            Test.STATE.player.hp = Test.STATE.player.hpMax;
         }
 
 
@@ -716,63 +698,63 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
         // TODO Auto-generated method stub
         if (arg0.getKeyCode() == KeyEvent.VK_UP) {
 
-            Test.player.up = false;
+            Test.STATE.player.up = false;
 
         } else if (arg0.getKeyCode() == KeyEvent.VK_RIGHT) {
 
-            Test.player.right = false;
+            Test.STATE.player.right = false;
 
         } else if (arg0.getKeyCode() == KeyEvent.VK_DOWN) {
 
-            Test.player.down = false;
+            Test.STATE.player.down = false;
 
         } else if (arg0.getKeyCode() == KeyEvent.VK_LEFT) {
 
-            Test.player.left = false;
+            Test.STATE.player.left = false;
 
         }
     }
 
     public void checkHit() {
         // Check hit
-        for (int i = 0; i < Test.bones.size(); i++) {
+        for (int i = 0; i < Test.STATE.bones.size(); i++) {
 
-            if (Test.player.hitbox.intersects(Test.bones.get(i).hitbox) && Test.player.invincibleFrames <= 0) {
-                if (Test.bones.get(i).color.equals("White") || (Test.bones.get(i).color.equals("Blue") && Test.player.isMoving()) || (Test.bones.get(i).color.equals("Orange") && !Test.player.isMoving())) {
-                    Test.player.hp--;
-                    Test.player.invincibleFrames += 2;
-                    if (Test.player.karma == 0) {
-                        Test.player.karma += 6;
+            if (Test.STATE.player.hitbox.intersects(Test.STATE.bones.get(i).hitbox) && Test.STATE.player.invincibleFrames <= 0) {
+                if (Test.STATE.bones.get(i).color.equals("White") || (Test.STATE.bones.get(i).color.equals("Blue") && Test.STATE.player.isMoving()) || (Test.STATE.bones.get(i).color.equals("Orange") && !Test.STATE.player.isMoving())) {
+                    Test.STATE.player.hp--;
+                    Test.STATE.player.invincibleFrames += 2;
+                    if (Test.STATE.player.karma == 0) {
+                        Test.STATE.player.karma += 6;
                     } else {
-                        Test.player.karma++;
+                        Test.STATE.player.karma++;
                     }
 
                 }
-                if (Test.player.karma > Test.player.hp) {
-                    Test.player.karma = Test.player.hp;
+                if (Test.STATE.player.karma > Test.STATE.player.hp) {
+                    Test.STATE.player.karma = Test.STATE.player.hp;
                 }
             }
         }
-        if (Test.cSystem.checkIfPlayerHit()) {
+        if (Test.STATE.cSystem.checkIfPlayerHit()) {
 
-            if (Test.player.invincibleFrames <= 0) {
-                Test.player.hp /= 2;
-                Test.player.invincibleFrames = 120;
+            if (Test.STATE.player.invincibleFrames <= 0) {
+                Test.STATE.player.hp /= 2;
+                Test.STATE.player.invincibleFrames = 120;
             }
 
         }
-        for (int i = 0; i < Test.spears.size(); i++) {
-            //System.out.println(Test.player.hitbox.x+" ,"+Test.player.hitbox.y);
-            Spear spear = Test.spears.get(i);
+        for (int i = 0; i < Test.STATE.spears.size(); i++) {
+            //System.out.println(Test.STATE.player.hitbox.x+" ,"+Test.STATE.player.hitbox.y);
+            Spear spear = Test.STATE.spears.get(i);
             if (spear.color.equals("Magenta")) {
 
 
-                if (Test.player.hitbox.intersects(spear.hitbox)) {
-                    if (Test.player.invincibleFrames <= 0) {
-                        Test.player.hp -= Test.spears.get(i).damage;
-                        Test.player.invincibleFrames = 40;
+                if (Test.STATE.player.hitbox.intersects(spear.hitbox)) {
+                    if (Test.STATE.player.invincibleFrames <= 0) {
+                        Test.STATE.player.hp -= Test.STATE.spears.get(i).damage;
+                        Test.STATE.player.invincibleFrames = 40;
                     }
-                    Test.spears.remove(i);
+                    Test.STATE.spears.remove(i);
                     continue;
                 }
 
@@ -780,17 +762,17 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
             }
         }
-        for (int i = 0; i < Test.spears.size(); i++) {
-            if (Test.player.shield.activated && Test.player.shield.hitbox.intersects(Test.spears.get(i).hitbox)) {
-                if (Test.spears.get(i).color.equals("Magenta")) {
-                    Test.spears.remove(i);
+        for (int i = 0; i < Test.STATE.spears.size(); i++) {
+            if (Test.STATE.player.shield.activated && Test.STATE.player.shield.hitbox.intersects(Test.STATE.spears.get(i).hitbox)) {
+                if (Test.STATE.spears.get(i).color.equals("Magenta")) {
+                    Test.STATE.spears.remove(i);
                     continue;
                 } else {
-                    if (Test.player.invincibleFrames <= 0) {
-                        Test.player.hp -= Test.spears.get(i).damage;
-                        Test.player.invincibleFrames = 20;
+                    if (Test.STATE.player.invincibleFrames <= 0) {
+                        Test.STATE.player.hp -= Test.STATE.spears.get(i).damage;
+                        Test.STATE.player.invincibleFrames = 20;
                     }
-                    Test.spears.remove(i);
+                    Test.STATE.spears.remove(i);
                     continue;
                 }
             }
@@ -810,13 +792,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      */
     public void healPlayer(int interval) {
 
-        if (Test.ticks % interval == 0) {
-            if (Test.player.hp < Test.player.hpMax && Test.player.hp > 0) {
-                Test.player.hp++;
+        if (Test.STATE.ticks % interval == 0) {
+            if (Test.STATE.player.hp < Test.STATE.player.hpMax && Test.STATE.player.hp > 0) {
+                Test.STATE.player.hp++;
             }
-            if (Test.player.karma > 0) {
+            if (Test.STATE.player.karma > 0) {
 
-                Test.player.karma--;
+                Test.STATE.player.karma--;
             }
         }
 
@@ -824,66 +806,66 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
     // 让骨头消失
     public void checkBonesDisappear() {
-        for (int i = 0; i < Test.bones.size(); i++) {
-            if (Test.bones.get(i).duration <= 0 && Test.bones.get(i).fadeOut) {
-                Test.bones.remove(i);
-                if (Test.bones.size() == 0) {
+        for (int i = 0; i < Test.STATE.bones.size(); i++) {
+            if (Test.STATE.bones.get(i).duration <= 0 && Test.STATE.bones.get(i).fadeOut) {
+                Test.STATE.bones.remove(i);
+                if (Test.STATE.bones.size() == 0) {
                     break;
                 }
-            } else if (!Test.bones.get(i).fadeOut
-                && (Test.bones.get(i).direction == 3 && Test.bones.get(i).x <= Test.bones.get(i).disappearX
-                || Test.bones.get(i).direction == 1 && Test.bones.get(i).x >= Test.bones.get(i).disappearX
-                || Test.bones.get(i).direction == 2 && Test.bones.get(i).y >= Test.bones.get(i).disappearY
-                || Test.bones.get(i).direction == 0
-                && Test.bones.get(i).y <= Test.bones.get(i).disappearY)) {
-                Test.bones.remove(i);
+            } else if (!Test.STATE.bones.get(i).fadeOut
+                && (Test.STATE.bones.get(i).direction == 3 && Test.STATE.bones.get(i).x <= Test.STATE.bones.get(i).disappearX
+                || Test.STATE.bones.get(i).direction == 1 && Test.STATE.bones.get(i).x >= Test.STATE.bones.get(i).disappearX
+                || Test.STATE.bones.get(i).direction == 2 && Test.STATE.bones.get(i).y >= Test.STATE.bones.get(i).disappearY
+                || Test.STATE.bones.get(i).direction == 0
+                && Test.STATE.bones.get(i).y <= Test.STATE.bones.get(i).disappearY)) {
+                Test.STATE.bones.remove(i);
             }
         }
-        for (int i = 0; i < Test.spears.size(); i++) {
-            if ((Test.spears.get(i).direction == 3 && Test.spears.get(i).x <= Test.spears.get(i).disappearX
-                || Test.spears.get(i).direction == 1 && Test.spears.get(i).x >= Test.spears.get(i).disappearX
-                || Test.spears.get(i).direction == 2 && Test.spears.get(i).y >= Test.spears.get(i).disappearY
-                || Test.spears.get(i).direction == 0
-                && Test.spears.get(i).y <= Test.spears.get(i).disappearY)) {
-                Test.spears.remove(i);
+        for (int i = 0; i < Test.STATE.spears.size(); i++) {
+            if ((Test.STATE.spears.get(i).direction == 3 && Test.STATE.spears.get(i).x <= Test.STATE.spears.get(i).disappearX
+                || Test.STATE.spears.get(i).direction == 1 && Test.STATE.spears.get(i).x >= Test.STATE.spears.get(i).disappearX
+                || Test.STATE.spears.get(i).direction == 2 && Test.STATE.spears.get(i).y >= Test.STATE.spears.get(i).disappearY
+                || Test.STATE.spears.get(i).direction == 0
+                && Test.STATE.spears.get(i).y <= Test.STATE.spears.get(i).disappearY)) {
+                Test.STATE.spears.remove(i);
             }
         }
     }
 
     public void boneDurationSubtract() {
-        for (int i = 0; i < Test.bones.size(); i++) {
-            if (Test.bones.get(i).fadeOut) {
-                Test.bones.get(i).duration--;
+        for (int i = 0; i < Test.STATE.bones.size(); i++) {
+            if (Test.STATE.bones.get(i).fadeOut) {
+                Test.STATE.bones.get(i).duration--;
             }
         }
     }
 
     public void warningDurationSubtract() {
-        for (int i = 0; i < Test.warnings.size(); i++) {
-            if (Test.warnings.get(i).duration > 0) {
-                Test.warnings.get(i).duration--;
+        for (int i = 0; i < Test.STATE.warnings.size(); i++) {
+            if (Test.STATE.warnings.get(i).duration > 0) {
+                Test.STATE.warnings.get(i).duration--;
             }
         }
     }
 
     // 设置传送工作情况
     public void setTeleportersState(boolean value) {
-        for (Teleporter t : Test.bounds) {
+        for (Teleporter t : Test.STATE.bounds) {
             t.activated = value;
         }
     }
 
     public void setCoordinateSystemState(boolean value) {
-        Test.cSystem.activated = value;
+        Test.STATE.cSystem.activated = value;
         if (!value) {
-            Test.cSystem.functionAttacks.removeAllElements();
+            Test.STATE.cSystem.functionAttacks.removeAllElements();
         }
     }
 
     // 检查玩家传送
     public void checkTeleport() {
-        for (Teleporter e : Test.bounds) {
-            if (e.hitbox.intersects(Test.player.hitbox) && e.activated) {
+        for (Teleporter e : Test.STATE.bounds) {
+            if (e.hitbox.intersects(Test.STATE.player.hitbox) && e.activated) {
                 e.transport();
             }
         }
@@ -894,128 +876,128 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
         this.setTeleportersState(false);
         this.setCoordinateSystemState(false);
 
-        Test.ticks = 0;
-        Test.player.hp = Test.player.hpMax;
-        Test.player.x = 250;
-        Test.player.y = 250;
-        Test.player.karma = 0;
+        Test.STATE.ticks = 0;
+        Test.STATE.player.hp = Test.STATE.player.hpMax;
+        Test.STATE.player.x = 250;
+        Test.STATE.player.y = 250;
+        Test.STATE.player.karma = 0;
         //去骨
-        Test.bones.removeAllElements();
+        Test.STATE.bones.removeAllElements();
         //去矛
-        Test.spears.removeAllElements();
-        Test.warnings.removeAllElements();
+        Test.STATE.spears.removeAllElements();
+        Test.STATE.warnings.removeAllElements();
         this.redtify();
-        Test.restart = false;
-        Test.over = false;
+        Test.STATE.restart = false;
+        Test.STATE.over = false;
 
     }
 
     public void restoreInitialBorder() {
-        Test.moveBorder[0].x = 0;
-        Test.moveBorder[0].y = 0;
-        Test.moveBorder[0].width = 500;
-        Test.moveBorder[0].height = 20;
-        Test.moveBorder[0].updateHitbox();
-        Test.moveBorder[1].x = 480;
-        Test.moveBorder[1].y = 0;
-        Test.moveBorder[1].width = 20;
-        Test.moveBorder[1].height = 500;
-        Test.moveBorder[1].updateHitbox();
-        Test.moveBorder[2].x = 0;
-        Test.moveBorder[2].y = 480;
-        Test.moveBorder[2].width = 500;
-        Test.moveBorder[2].height = 20;
-        Test.moveBorder[2].updateHitbox();
-        Test.moveBorder[3].x = 0;
-        Test.moveBorder[3].y = 0;
-        Test.moveBorder[3].width = 20;
-        Test.moveBorder[3].height = 500;
-        Test.moveBorder[3].updateHitbox();
-        Test.player.updateHitbox();
+        Test.STATE.moveBorder[0].x = 0;
+        Test.STATE.moveBorder[0].y = 0;
+        Test.STATE.moveBorder[0].width = 500;
+        Test.STATE.moveBorder[0].height = 20;
+        Test.STATE.moveBorder[0].updateHitbox();
+        Test.STATE.moveBorder[1].x = 480;
+        Test.STATE.moveBorder[1].y = 0;
+        Test.STATE.moveBorder[1].width = 20;
+        Test.STATE.moveBorder[1].height = 500;
+        Test.STATE.moveBorder[1].updateHitbox();
+        Test.STATE.moveBorder[2].x = 0;
+        Test.STATE.moveBorder[2].y = 480;
+        Test.STATE.moveBorder[2].width = 500;
+        Test.STATE.moveBorder[2].height = 20;
+        Test.STATE.moveBorder[2].updateHitbox();
+        Test.STATE.moveBorder[3].x = 0;
+        Test.STATE.moveBorder[3].y = 0;
+        Test.STATE.moveBorder[3].width = 20;
+        Test.STATE.moveBorder[3].height = 500;
+        Test.STATE.moveBorder[3].updateHitbox();
+        Test.STATE.player.updateHitbox();
     }
 
     //切换成蓝色模式
     public void bluetify(int gDirection) {
-        Test.player.soulMode = "Blue";
-        Test.player.shield.activated = false;
-        Test.player.speed = 9;
-        Test.player.gDirection = gDirection;
+        Test.STATE.player.soulMode = "Blue";
+        Test.STATE.player.shield.activated = false;
+        Test.STATE.player.speed = 9;
+        Test.STATE.player.gDirection = gDirection;
         restoreInitialBorder();
     }
 
     //切换成红色模式
     public void redtify() {
-        Test.player.soulMode = "Red";
-        Test.player.speed = 9;
+        Test.STATE.player.soulMode = "Red";
+        Test.STATE.player.speed = 9;
         restoreInitialBorder();
     }
 
     //切换成绿色模式
     public void greentify() {
-        Test.player.soulMode = "Green";
-        Test.player.speed = 0;
-        Test.player.shield.activated = true;
+        Test.STATE.player.soulMode = "Green";
+        Test.STATE.player.speed = 0;
+        Test.STATE.player.shield.activated = true;
 
-        Test.player.x = 225;
-        Test.player.y = 225;
-        Test.moveBorder[0].x = 205;
-        Test.moveBorder[0].y = 205;
-        Test.moveBorder[0].width = 65;
-        Test.moveBorder[0].updateHitbox();
-        Test.moveBorder[1].x = 250;
-        Test.moveBorder[1].y = 205;
-        Test.moveBorder[1].height = 65;
-        Test.moveBorder[1].updateHitbox();
-        Test.moveBorder[2].x = 205;
-        Test.moveBorder[2].y = 250;
-        Test.moveBorder[2].width = 65;
-        Test.moveBorder[2].updateHitbox();
-        Test.moveBorder[3].x = 205;
-        Test.moveBorder[3].y = 205;
-        Test.moveBorder[3].height = 65;
-        Test.moveBorder[3].updateHitbox();
-        Test.player.updateHitbox();
+        Test.STATE.player.x = 225;
+        Test.STATE.player.y = 225;
+        Test.STATE.moveBorder[0].x = 205;
+        Test.STATE.moveBorder[0].y = 205;
+        Test.STATE.moveBorder[0].width = 65;
+        Test.STATE.moveBorder[0].updateHitbox();
+        Test.STATE.moveBorder[1].x = 250;
+        Test.STATE.moveBorder[1].y = 205;
+        Test.STATE.moveBorder[1].height = 65;
+        Test.STATE.moveBorder[1].updateHitbox();
+        Test.STATE.moveBorder[2].x = 205;
+        Test.STATE.moveBorder[2].y = 250;
+        Test.STATE.moveBorder[2].width = 65;
+        Test.STATE.moveBorder[2].updateHitbox();
+        Test.STATE.moveBorder[3].x = 205;
+        Test.STATE.moveBorder[3].y = 205;
+        Test.STATE.moveBorder[3].height = 65;
+        Test.STATE.moveBorder[3].updateHitbox();
+        Test.STATE.player.updateHitbox();
     }
 
     public void gravity() {
         //如果玩家是蓝色模式
-        if (Test.player.soulMode.equals("Blue")) {
+        if (Test.STATE.player.soulMode.equals("Blue")) {
             //并且玩家的重力已经让玩家运动到边界，那么就把玩家重力速度设置为0
-            if (Test.player.gDirection == 0 && Test.player.hitbox.intersects(Test.moveBorder[0].hitbox)) {
-                Test.player.gSpeed = 0;
+            if (Test.STATE.player.gDirection == 0 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[0].hitbox)) {
+                Test.STATE.player.gSpeed = 0;
 
-            } else if (Test.player.gDirection == 2 && Test.player.hitbox.intersects(Test.moveBorder[2].hitbox)) {
-                Test.player.gSpeed = 0;
+            } else if (Test.STATE.player.gDirection == 2 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[2].hitbox)) {
+                Test.STATE.player.gSpeed = 0;
 
-            } else if (Test.player.gDirection == 3 && Test.player.hitbox.intersects(Test.moveBorder[3].hitbox)) {
-                Test.player.gSpeed = 0;
+            } else if (Test.STATE.player.gDirection == 3 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[3].hitbox)) {
+                Test.STATE.player.gSpeed = 0;
 
-            } else if (Test.player.gDirection == 1 && Test.player.hitbox.intersects(Test.moveBorder[1].hitbox)) {
-                Test.player.gSpeed = 0;
+            } else if (Test.STATE.player.gDirection == 1 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[1].hitbox)) {
+                Test.STATE.player.gSpeed = 0;
 
             }
-//			for(Platform p:Test.platforms) {
-//				if(Test.player.hitbox.intersects(p.hitbox)) {
-//					Test.player.gSpeed=0;
+//			for(Platform p:Test.STATE.platforms) {
+//				if(Test.STATE.player.hitbox.intersects(p.hitbox)) {
+//					Test.STATE.player.gSpeed=0;
 //				}
 //			}
-            switch (Test.player.gDirection) {
+            switch (Test.STATE.player.gDirection) {
                 case 0:
-                    Test.player.y -= Test.player.gSpeed / 60;
+                    Test.STATE.player.y -= Test.STATE.player.gSpeed / 60;
                     break;
                 case 1:
-                    Test.player.x += Test.player.gSpeed / 60;
+                    Test.STATE.player.x += Test.STATE.player.gSpeed / 60;
                     break;
                 case 2:
-                    Test.player.y += Test.player.gSpeed / 60;
+                    Test.STATE.player.y += Test.STATE.player.gSpeed / 60;
                     break;
                 case 3:
-                    Test.player.x -= Test.player.gSpeed / 60;
+                    Test.STATE.player.x -= Test.STATE.player.gSpeed / 60;
                     break;
 
             }
 
-            Test.player.gSpeed += 2.6;
+            Test.STATE.player.gSpeed += 2.6;
 
 
         }
@@ -1027,21 +1009,21 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      */
     public void boneShaft() {
 
-        if (Test.ticks % 4 == 0) {
+        if (Test.STATE.ticks % 4 == 0) {
             Bone b1 = new Bone();
             b1.x = 0;
             b1.y = 0;
             b1.width = 30;
             int x = 0;
-            if (Test.ticks <= 450 && Test.ticks >= 300) {
-                x = (int) ((Test.ticks - 300) * 2 + 50);
-            } else if (Test.ticks <= 600 && Test.ticks > 450) {
-                x = (int) (-(Test.ticks - 450) * 2 + 350);
+            if (Test.STATE.ticks <= 450 && Test.STATE.ticks >= 300) {
+                x = (int) ((Test.STATE.ticks - 300) * 2 + 50);
+            } else if (Test.STATE.ticks <= 600 && Test.STATE.ticks > 450) {
+                x = (int) (-(Test.STATE.ticks - 450) * 2 + 350);
             }
-            if (Test.ticks <= 14600 && Test.ticks >= 14300) {
-                x = (int) ((Test.ticks - 14300) * 0.75 + 100);
-            } else if (Test.ticks <= 14900 && Test.ticks > 14600) {
-                x = (int) (-(Test.ticks - 14600) * 0.75 + 325);
+            if (Test.STATE.ticks <= 14600 && Test.STATE.ticks >= 14300) {
+                x = (int) ((Test.STATE.ticks - 14300) * 0.75 + 100);
+            } else if (Test.STATE.ticks <= 14900 && Test.STATE.ticks > 14600) {
+                x = (int) (-(Test.STATE.ticks - 14600) * 0.75 + 325);
             }
             b1.height = x;
             b1.disappearX = 700;
@@ -1058,8 +1040,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b1.speed = 25;
             b2.speed = 25;
 
-            Test.bones.add(b1);
-            Test.bones.add(b2);
+            Test.STATE.bones.add(b1);
+            Test.STATE.bones.add(b2);
         }
     }
 
@@ -1069,7 +1051,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      */
     public void crossBones() {
 
-        if (Test.ticks % 40 == 28) {
+        if (Test.STATE.ticks % 40 == 28) {
             Bone b1 = new Bone();
             b1.direction = 0;
             b1.x = 0;
@@ -1079,9 +1061,9 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b1.speed = 14;
             b1.disappearY = 0;
             b1.randomizeColor();
-            Test.bones.add(b1);
+            Test.STATE.bones.add(b1);
 
-        } else if (Test.ticks % 40 == 0) {
+        } else if (Test.STATE.ticks % 40 == 0) {
             Bone b2 = new Bone();
             b2.direction = 2;
             b2.x = 250;
@@ -1091,13 +1073,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b2.speed = 14;
             b2.disappearY = 600;
             b2.randomizeColor();
-            Test.bones.add(b2);
+            Test.STATE.bones.add(b2);
         }
     }
 
     public void crossBonesHorizontal() {
         //大骨头
-        if (Test.ticks % 40 == 20) {
+        if (Test.STATE.ticks % 40 == 20) {
             Bone b1 = new Bone();
             b1.direction = 3;
             b1.x = 600;
@@ -1107,9 +1089,9 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b1.speed = 9;
             b1.disappearX = -100;
 
-            Test.bones.add(b1);
+            Test.STATE.bones.add(b1);
 
-        } else if (Test.ticks % 40 == 0) {
+        } else if (Test.STATE.ticks % 40 == 0) {
             Bone b2 = new Bone();
             b2.direction = 1;
             b2.x = -100;
@@ -1119,7 +1101,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b2.speed = 9;
             b2.disappearX = 600;
 
-            Test.bones.add(b2);
+            Test.STATE.bones.add(b2);
         }
     }
 
@@ -1130,7 +1112,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      */
     public void boneSpike(int direction) {
 
-        if (Test.ticks % 60 == 0) {
+        if (Test.STATE.ticks % 60 == 0) {
 
             switch (direction) {
                 case 0:
@@ -1143,10 +1125,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     b.speed = 10;
                     b.disappearY = 0;
 
-                    Test.bones.add(b);
+                    Test.STATE.bones.add(b);
                     this.bluetify(0);
-                    //			Test.player.y=20;
-                    Test.player.gSpeed += 1000.0;
+                    //			Test.STATE.player.y=20;
+                    Test.STATE.player.gSpeed += 1000.0;
                     break;
                 case 1:
                     Bone b1 = new Bone();
@@ -1158,10 +1140,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     b1.speed = 10;
                     b1.disappearX = 350;
 
-                    Test.bones.add(b1);
-                    //	Test.player.x = 480-Test.player.width;
+                    Test.STATE.bones.add(b1);
+                    //	Test.STATE.player.x = 480-Test.STATE.player.width;
                     this.bluetify(1);
-                    Test.player.gSpeed += 1000.0;
+                    Test.STATE.player.gSpeed += 1000.0;
                     break;
                 case 2:
                     Bone b2 = new Bone();
@@ -1173,10 +1155,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     b2.speed = 10;
                     b2.disappearY = 350;
 
-                    Test.bones.add(b2);
-                    //	Test.player.y = 480-Test.player.height;
+                    Test.STATE.bones.add(b2);
+                    //	Test.STATE.player.y = 480-Test.STATE.player.height;
                     this.bluetify(2);
-                    Test.player.gSpeed += 1000.0;
+                    Test.STATE.player.gSpeed += 1000.0;
                     break;
                 case 3:
                     Bone b3 = new Bone();
@@ -1188,10 +1170,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     b3.speed = 10;
                     b3.disappearX = 0;
 
-                    Test.bones.add(b3);
-                    //Test.player.x = 20;
+                    Test.STATE.bones.add(b3);
+                    //Test.STATE.player.x = 20;
                     this.bluetify(3);
-                    Test.player.gSpeed += 1000.0;
+                    Test.STATE.player.gSpeed += 1000.0;
                     break;
 
             }
@@ -1206,7 +1188,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public void boneRain(int direction) {
 
-        if (Test.ticks % 10 == 0) {
+        if (Test.STATE.ticks % 10 == 0) {
             Bone b = new Bone();
             switch (direction) {
                 case 0:
@@ -1251,7 +1233,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     break;
             }
 
-            Test.bones.add(b);
+            Test.STATE.bones.add(b);
         }
 
     }
@@ -1261,10 +1243,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      */
     public void sniperBone(int interval) {
 
-        if (Test.ticks % interval == 0) {
+        if (Test.STATE.ticks % interval == 0) {
 
             Bone b1 = new Bone();
-            b1.x = Test.player.x;
+            b1.x = Test.STATE.player.x;
             b1.y = -300;
             b1.width = 15;
             b1.height = 75;
@@ -1273,7 +1255,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b1.disappearY = 700;
 
             Bone b2 = new Bone();
-            b2.y = Test.player.y;
+            b2.y = Test.STATE.player.y;
             b2.x = 800;
             b2.width = 75;
             b2.height = 15;
@@ -1281,7 +1263,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b2.speed = 60;
             b2.disappearX = -150;
             Bone b3 = new Bone();
-            b3.x = Test.player.x;
+            b3.x = Test.STATE.player.x;
             b3.y = 800;
             b3.width = 15;
             b3.height = 75;
@@ -1289,17 +1271,17 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b3.speed = 60;
             b3.disappearY = -150;
             Bone b4 = new Bone();
-            b4.y = Test.player.y;
+            b4.y = Test.STATE.player.y;
             b4.x = -300;
             b4.width = 75;
             b4.height = 15;
             b4.direction = 1;
             b4.speed = 60;
             b4.disappearX = 750;
-            Test.bones.add(b1);
-            Test.bones.add(b2);
-            Test.bones.add(b3);
-            Test.bones.add(b4);
+            Test.STATE.bones.add(b1);
+            Test.STATE.bones.add(b2);
+            Test.STATE.bones.add(b3);
+            Test.STATE.bones.add(b4);
         }
     }
 
@@ -1309,7 +1291,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      * @param direction 0锟斤拷锟斤拷 1锟斤拷锟斤拷
      */
     public void foldBones(int direction) {
-        if (Test.ticks % 55 == 0) {
+        if (Test.STATE.ticks % 55 == 0) {
 
             if (direction == 0) {
                 Bone b1 = new Bone();
@@ -1345,10 +1327,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b4.direction = 0;
                 b4.disappearY = -200;
                 b4.speed = 14;
-                Test.bones.add(b1);
-                Test.bones.add(b2);
-                Test.bones.add(b3);
-                Test.bones.add(b4);
+                Test.STATE.bones.add(b1);
+                Test.STATE.bones.add(b2);
+                Test.STATE.bones.add(b3);
+                Test.STATE.bones.add(b4);
             } else {
                 Bone b1 = new Bone();
                 b1.y = 0;
@@ -1383,10 +1365,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b4.direction = 3;
                 b4.disappearX = -200;
                 b4.speed = 14;
-                Test.bones.add(b1);
-                Test.bones.add(b2);
-                Test.bones.add(b3);
-                Test.bones.add(b4);
+                Test.STATE.bones.add(b1);
+                Test.STATE.bones.add(b2);
+                Test.STATE.bones.add(b3);
+                Test.STATE.bones.add(b4);
             }
         }
     }
@@ -1402,8 +1384,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
         switch (direction) {
             case 0:
-                // Test.player.x=285;
-                // Test.player.y=215;
+                // Test.STATE.player.x=285;
+                // Test.STATE.player.y=215;
                 b1.x = 0;
                 b1.y = 0;
                 b1.width = 500;
@@ -1421,8 +1403,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b2.disappearX = -100;
                 break;
             case 1:
-                // Test.player.x=285;
-                // Test.player.y=285;
+                // Test.STATE.player.x=285;
+                // Test.STATE.player.y=285;
                 b1.x = 0;
                 b1.y = 500;
                 b1.width = 500;
@@ -1440,8 +1422,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b2.disappearX = -100;
                 break;
             case 2:
-                // Test.player.x=215;
-                // Test.player.y=285;
+                // Test.STATE.player.x=215;
+                // Test.STATE.player.y=285;
                 b1.x = 0;
                 b1.y = 500;
                 b1.width = 500;
@@ -1459,8 +1441,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b2.disappearX = 600;
                 break;
             case 3:
-                // Test.player.x=215;
-                // Test.player.y=215;
+                // Test.STATE.player.x=215;
+                // Test.STATE.player.y=215;
                 b1.x = 0;
                 b1.y = 0;
                 b1.width = 500;
@@ -1478,15 +1460,15 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b2.disappearX = 600;
                 break;
         }
-        Test.bones.add(b1);
-        Test.bones.add(b2);
+        Test.STATE.bones.add(b1);
+        Test.STATE.bones.add(b2);
     }
 
     /**
      * 锟斤拷锟斤拷模式锟剿ｏ拷锟斤拷头锟斤拷锟斤拷锟斤拷锟�
      */
     public void laserTrap() {
-        if (Test.ticks % 55 == 0) {
+        if (Test.STATE.ticks % 55 == 0) {
             for (int i = 1; i <= 2; i++) {
                 Warning w1 = new Warning();
                 w1.x = (int) (Math.random() * 500);
@@ -1495,13 +1477,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 w1.maxDuration = 60;
                 w1.width = 30;
                 w1.height = 30;
-                Test.warnings.add(w1);
+                Test.STATE.warnings.add(w1);
             }
         }
-        for (int i = 0; i < Test.warnings.size(); i++) {
-            Warning warning = Test.warnings.get(i);
+        for (int i = 0; i < Test.STATE.warnings.size(); i++) {
+            Warning warning = Test.STATE.warnings.get(i);
             if (warning.duration <= 0) {
-                Test.warnings.remove(i);
+                Test.STATE.warnings.remove(i);
                 Bone b1 = new Bone();
                 Bone b = new Bone();// 锟斤拷锟脚碉拷
                 b1.x = warning.x;
@@ -1513,7 +1495,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b1.speed = 0;
                 b1.fadeOut = true;
                 b1.direction = 1;
-                Test.bones.add(b1);
+                Test.STATE.bones.add(b1);
 
                 b.x = 0;
                 b.y = warning.y;
@@ -1525,7 +1507,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b.fadeOut = true;
                 b.direction = 0;
 
-                Test.bones.add(b);
+                Test.STATE.bones.add(b);
             }
         }
 
@@ -1536,7 +1518,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      * GB炮开门杀
      */
     public void gasterBlasters() {
-        if (Test.ticks % 120 == 0) {
+        if (Test.STATE.ticks % 120 == 0) {
             Bone b1 = new Bone();
             b1.x = 0;
             b1.y = 0;
@@ -1573,11 +1555,11 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b4.duration = 15;
             b4.maxDuration = 15;
             b4.speed = 0;
-            Test.bones.add(b1);
-            Test.bones.add(b2);
-            Test.bones.add(b3);
-            Test.bones.add(b4);
-        } else if (Test.ticks % 120 == 60) {
+            Test.STATE.bones.add(b1);
+            Test.STATE.bones.add(b2);
+            Test.STATE.bones.add(b3);
+            Test.STATE.bones.add(b4);
+        } else if (Test.STATE.ticks % 120 == 60) {
             Bone b1 = new Bone();
             b1.x = 0;
             b1.y = 200;
@@ -1587,7 +1569,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b1.duration = 15;
             b1.maxDuration = 15;
             b1.speed = 0;
-            Test.bones.add(b1);
+            Test.STATE.bones.add(b1);
         }
     }
 
@@ -1595,19 +1577,19 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      * 加强GB炮
      */
     public void augmentedGasterBlasters() {
-        if (Test.ticks % 30 == 0) {
+        if (Test.STATE.ticks % 30 == 0) {
 
             Bone b1 = new Bone();
 
-            if ((Test.ticks - 20000) % 120 < 60) {
+            if ((Test.STATE.ticks - 20000) % 120 < 60) {
 
-                b1.x = 60 + ((Test.ticks - 20000) % 60) * 3;
+                b1.x = 60 + ((Test.STATE.ticks - 20000) % 60) * 3;
                 b1.y = 0;
                 b1.width = 50;
                 b1.height = 500;
-            } else if ((Test.ticks - 20000) % 120 >= 60) {
+            } else if ((Test.STATE.ticks - 20000) % 120 >= 60) {
                 b1.x = 0;
-                b1.y = 60 + ((Test.ticks - 20000) % 60) * 3;
+                b1.y = 60 + ((Test.STATE.ticks - 20000) % 60) * 3;
                 b1.width = 500;
                 b1.height = 50;
             }
@@ -1617,7 +1599,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             b1.maxDuration = 30;
             b1.speed = 0;
 
-            Test.bones.add(b1);
+            Test.STATE.bones.add(b1);
 
         }
     }
@@ -1625,8 +1607,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     public void blueBone() {
 
 
-        if (Test.ticks > 22000 && Test.ticks <= 22180) {
-            if (Test.ticks % 60 == 30) {
+        if (Test.STATE.ticks > 22000 && Test.STATE.ticks <= 22180) {
+            if (Test.STATE.ticks % 60 == 30) {
                 //长蓝色骨头
                 Bone b1 = new Bone();
                 b1.color = "Blue";
@@ -1637,8 +1619,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b1.speed = 20;
                 b1.direction = 3;
                 b1.disappearX = -100;
-                Test.bones.add(b1);
-            } else if (Test.ticks % 60 == 0) {
+                Test.STATE.bones.add(b1);
+            } else if (Test.STATE.ticks % 60 == 0) {
                 //白色短骨头
                 Bone b2 = new Bone();
                 b2.color = "White";
@@ -1649,10 +1631,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b2.speed = 20;
                 b2.direction = 3;
                 b2.disappearX = -100;
-                Test.bones.add(b2);
+                Test.STATE.bones.add(b2);
             }
-        } else if (Test.ticks > 22240 && Test.ticks <= 22420) {
-            if (Test.ticks % 60 == 30) {
+        } else if (Test.STATE.ticks > 22240 && Test.STATE.ticks <= 22420) {
+            if (Test.STATE.ticks % 60 == 30) {
                 //长蓝色骨头
                 Bone b1 = new Bone();
                 b1.color = "Blue";
@@ -1663,8 +1645,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b1.speed = 20;
                 b1.direction = 1;
                 b1.disappearX = 600;
-                Test.bones.add(b1);
-            } else if (Test.ticks % 60 == 0) {
+                Test.STATE.bones.add(b1);
+            } else if (Test.STATE.ticks % 60 == 0) {
                 //白色短骨头
                 Bone b2 = new Bone();
                 b2.color = "White";
@@ -1675,7 +1657,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                 b2.speed = 20;
                 b2.direction = 1;
                 b2.disappearX = 600;
-                Test.bones.add(b2);
+                Test.STATE.bones.add(b2);
             }
         }
 
@@ -1683,7 +1665,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     public void spearAttack() {
-        if (Test.ticks % 30 == 0) {
+        if (Test.STATE.ticks % 30 == 0) {
             this.greentify();
 
             Spear spear = new Spear();
@@ -1696,7 +1678,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
             switch (direction) {
                 case 2:
-                    x = Test.player.x;
+                    x = Test.STATE.player.x;
                     y = -100;
                     width = 15;
                     height = 45;
@@ -1704,13 +1686,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     break;
                 case 3:
                     x = 600;
-                    y = Test.player.y;
+                    y = Test.STATE.player.y;
                     width = 45;
                     height = 15;
                     spear.disappearX = -100;
                     break;
                 case 0:
-                    x = Test.player.x;
+                    x = Test.STATE.player.x;
                     y = 600;
                     width = 15;
                     height = 45;
@@ -1718,7 +1700,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     break;
                 case 1:
                     x = -100;
-                    y = Test.player.y;
+                    y = Test.STATE.player.y;
                     width = 45;
                     height = 15;
                     spear.disappearX = 600;
@@ -1731,12 +1713,12 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             spear.height = height;
             spear.direction = direction;
             spear.speed = speed;
-            Test.spears.add(spear);
+            Test.STATE.spears.add(spear);
         }
     }
 
     public void spearAttackTwo() {
-        if (Test.ticks % 40 == 0) {
+        if (Test.STATE.ticks % 40 == 0) {
             this.greentify();
 
             Spear spear = new Spear();
@@ -1754,7 +1736,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
             switch (direction) {
                 case 2:
-                    x = Test.player.x;
+                    x = Test.STATE.player.x;
                     y = -100;
                     width = 15;
                     height = 45;
@@ -1762,13 +1744,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     break;
                 case 3:
                     x = 600;
-                    y = Test.player.y;
+                    y = Test.STATE.player.y;
                     width = 45;
                     height = 15;
                     spear.disappearX = -100;
                     break;
                 case 0:
-                    x = Test.player.x;
+                    x = Test.STATE.player.x;
                     y = 600;
                     width = 15;
                     height = 45;
@@ -1776,7 +1758,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     break;
                 case 1:
                     x = -100;
-                    y = Test.player.y;
+                    y = Test.STATE.player.y;
                     width = 45;
                     height = 15;
                     spear.disappearX = 600;
@@ -1790,15 +1772,15 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             spear.direction = direction;
             spear.speed = speed;
 
-            Test.spears.add(spear);
+            Test.STATE.spears.add(spear);
         }
     }
 
     public void spearAttackThree() {
         this.greentify();
-        if (Test.ticks % 40 == 0) {
+        if (Test.STATE.ticks % 40 == 0) {
             Spear spear = new Spear();
-            int direction = GameTools.getOppositeDirection(Test.player.shield.direction);
+            int direction = GameTools.getOppositeDirection(Test.STATE.player.shield.direction);
             float x = 0;
             float y = 0;
             int width = 0;
@@ -1807,7 +1789,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
             switch (direction) {
                 case 2:
-                    x = Test.player.x;
+                    x = Test.STATE.player.x;
                     y = -100;
                     width = 15;
                     height = 45;
@@ -1815,13 +1797,13 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     break;
                 case 3:
                     x = 600;
-                    y = Test.player.y;
+                    y = Test.STATE.player.y;
                     width = 45;
                     height = 15;
                     spear.disappearX = -100;
                     break;
                 case 0:
-                    x = Test.player.x;
+                    x = Test.STATE.player.x;
                     y = 600;
                     width = 15;
                     height = 45;
@@ -1829,7 +1811,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
                     break;
                 case 1:
                     x = -100;
-                    y = Test.player.y;
+                    y = Test.STATE.player.y;
                     width = 45;
                     height = 15;
                     spear.disappearX = 600;
@@ -1844,7 +1826,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
             spear.speed = speed;
             spear.color = "Yellow";
 
-            Test.spears.add(spear);
+            Test.STATE.spears.add(spear);
         }
     }
 
@@ -1854,7 +1836,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
         platform.x = 600;
         platform.y = 150;
         platform.speed = 6;
-        Test.platforms.add(platform);
+        Test.STATE.platforms.add(platform);
 
     }
 }

@@ -14,7 +14,7 @@ public class CoordinateSystem {
         ExponentialFunction eFunction = null;
         TrigFunction tFunction = null;
         double value = Math.random();
-        if (Test.ticks % 300 == 0) {
+        if (Test.STATE.ticks % 300 == 0) {
             if (value < 0.25) {
                 lFunction = new LinearFunction((float) ((int) (Math.random() * 20 - 10) * 0.5),
                     (int) (Math.random() * 300 - 150));
@@ -41,8 +41,8 @@ public class CoordinateSystem {
     }
 
     public boolean checkIfPlayerHit() {
-        float playerX = Test.player.x - 250;
-        float playerY = 250 - Test.player.y;
+        float playerX = Test.STATE.player.x - 250;
+        float playerY = 250 - Test.STATE.player.y;
         float y = 0f;
         for (int i = 0; i < this.functionAttacks.size(); i++) {
 
