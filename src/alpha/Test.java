@@ -385,74 +385,27 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     public void drainInvincibility() {
-        if (Test.STATE.player.invincibleFrames > 0) {
-            Test.STATE.player.invincibleFrames--;
-        }
+        alpha.system.LifetimeSystem.drainInvincibility(Test.STATE);
     }
 
     public void moveAttacks() {
-        // TODO Auto-generated method stub
-        for (int i = 0; i < Test.STATE.bones.size(); i++) {
-
-            Test.STATE.bones.get(i).move();
-        }
-        for (int i = 0; i < Test.STATE.spears.size(); i++) {
-            Test.STATE.spears.get(i).move();
-        }
+        alpha.system.MovementSystem.moveAttacks(Test.STATE);
     }
 
     public void movePlatforms() {
-        for (Platform p : Test.STATE.platforms) {
-            p.move();
-        }
+        alpha.system.MovementSystem.movePlatforms(Test.STATE);
     }
 
     public void holdsPlayerInBounds() {
-        if (Test.STATE.player.x < Test.STATE.moveBorder[3].x + Test.STATE.moveBorder[3].width) {
-            Test.STATE.player.x = Test.STATE.moveBorder[3].x + Test.STATE.moveBorder[3].width;
-        }
-        if (Test.STATE.player.x > Test.STATE.moveBorder[1].x - Test.STATE.player.width) {
-            Test.STATE.player.x = Test.STATE.moveBorder[1].x - Test.STATE.player.width;
-        }
-        if (Test.STATE.player.y < Test.STATE.moveBorder[0].y + Test.STATE.moveBorder[0].height) {
-            Test.STATE.player.y = Test.STATE.moveBorder[0].y + Test.STATE.moveBorder[0].height;
-        }
-        if (Test.STATE.player.y > Test.STATE.moveBorder[2].y - Test.STATE.player.height) {
-            Test.STATE.player.y = Test.STATE.moveBorder[2].y - Test.STATE.player.height;
-        }
+        alpha.system.MovementSystem.holdsPlayerInBounds(Test.STATE);
     }
 
     public void moveThePlayer() {
-        if (Test.STATE.player.up && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[0].hitbox)) {
-
-            Test.STATE.player.y -= Math.ceil((double) Test.STATE.player.speed / 2);
-
-            Test.STATE.player.directShield(0);
-        }
-        if (Test.STATE.player.down && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[2].hitbox)) {
-
-            Test.STATE.player.y += Math.ceil((double) Test.STATE.player.speed / 2);
-
-            Test.STATE.player.directShield(2);
-        }
-        if (Test.STATE.player.left && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[3].hitbox)) {
-
-            Test.STATE.player.x -= Math.ceil((double) Test.STATE.player.speed / 2);
-
-            Test.STATE.player.directShield(3);
-        }
-        if (Test.STATE.player.right && !Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[1].hitbox)) {
-
-            Test.STATE.player.x += Math.ceil((double) Test.STATE.player.speed / 2);
-
-            Test.STATE.player.directShield(1);
-        }
+        alpha.system.MovementSystem.moveThePlayer(Test.STATE);
     }
 
     public void movePlatform() {
-        for (Platform p : Test.STATE.platforms) {
-            p.move();
-        }
+        alpha.system.MovementSystem.movePlatform(Test.STATE);
     }
 
     public void scheduleAttack() {
@@ -625,30 +578,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     public void karmaHpDecrease() {
-        // TODO Auto-generated method stub
-        if (Test.STATE.player.karma > 40) {
-            Test.STATE.player.karma = 40;
-        }
-        if (Test.STATE.player.karma == 40 && Test.STATE.player.hp > 1) {
-            Test.STATE.player.karma--;
-            Test.STATE.player.hp--;
-        }
-        if (Test.STATE.player.karma >= 30 && Test.STATE.player.karma < 40 && Test.STATE.player.hp > 1 && Test.STATE.ticks % 4 == 0) {
-            Test.STATE.player.karma--;
-            Test.STATE.player.hp -= 1;
-        } else if (Test.STATE.player.karma >= 20 && Test.STATE.player.karma < 30 && Test.STATE.ticks % 10 == 0 && Test.STATE.player.hp > 1) {
-            Test.STATE.player.karma--;
-            Test.STATE.player.hp -= 1;
-        } else if (Test.STATE.player.karma >= 10 && Test.STATE.player.karma < 20 && Test.STATE.ticks % 30 == 0 && Test.STATE.player.hp > 1) {
-            Test.STATE.player.karma--;
-            Test.STATE.player.hp -= 1;
-        } else if (Test.STATE.player.karma > 0 && Test.STATE.player.karma < 10 && Test.STATE.ticks % 60 == 0 && Test.STATE.player.hp > 1) {
-            Test.STATE.player.karma--;
-            Test.STATE.player.hp -= 1;
-        }
-//		if (Test.STATE.player.karma > 0 && Test.STATE.player.hp <= 5) {
-//			Test.STATE.player.karma--;
-//		}
+        alpha.system.KarmaSystem.karmaHpDecrease(Test.STATE);
     }
 
     @Override
@@ -716,67 +646,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     public void checkHit() {
-        // Check hit
-        for (int i = 0; i < Test.STATE.bones.size(); i++) {
-
-            if (Test.STATE.player.hitbox.intersects(Test.STATE.bones.get(i).hitbox) && Test.STATE.player.invincibleFrames <= 0) {
-                if (Test.STATE.bones.get(i).color.equals("White") || (Test.STATE.bones.get(i).color.equals("Blue") && Test.STATE.player.isMoving()) || (Test.STATE.bones.get(i).color.equals("Orange") && !Test.STATE.player.isMoving())) {
-                    Test.STATE.player.hp--;
-                    Test.STATE.player.invincibleFrames += 2;
-                    if (Test.STATE.player.karma == 0) {
-                        Test.STATE.player.karma += 6;
-                    } else {
-                        Test.STATE.player.karma++;
-                    }
-
-                }
-                if (Test.STATE.player.karma > Test.STATE.player.hp) {
-                    Test.STATE.player.karma = Test.STATE.player.hp;
-                }
-            }
-        }
-        if (Test.STATE.cSystem.checkIfPlayerHit()) {
-
-            if (Test.STATE.player.invincibleFrames <= 0) {
-                Test.STATE.player.hp /= 2;
-                Test.STATE.player.invincibleFrames = 120;
-            }
-
-        }
-        for (int i = 0; i < Test.STATE.spears.size(); i++) {
-            //System.out.println(Test.STATE.player.hitbox.x+" ,"+Test.STATE.player.hitbox.y);
-            Spear spear = Test.STATE.spears.get(i);
-            if (spear.color.equals("Magenta")) {
-
-
-                if (Test.STATE.player.hitbox.intersects(spear.hitbox)) {
-                    if (Test.STATE.player.invincibleFrames <= 0) {
-                        Test.STATE.player.hp -= Test.STATE.spears.get(i).damage;
-                        Test.STATE.player.invincibleFrames = 40;
-                    }
-                    Test.STATE.spears.remove(i);
-                    continue;
-                }
-
-            } else {
-
-            }
-        }
-        for (int i = 0; i < Test.STATE.spears.size(); i++) {
-            if (Test.STATE.player.shield.activated && Test.STATE.player.shield.hitbox.intersects(Test.STATE.spears.get(i).hitbox)) {
-                if (Test.STATE.spears.get(i).color.equals("Magenta")) {
-                    Test.STATE.spears.remove(i);
-                    continue;
-                } else {
-                    if (Test.STATE.player.invincibleFrames <= 0) {
-                        Test.STATE.player.hp -= Test.STATE.spears.get(i).damage;
-                        Test.STATE.player.invincibleFrames = 20;
-                    }
-                    Test.STATE.spears.remove(i);
-                    continue;
-                }
-            }
-        }
+        alpha.system.CollisionSystem.checkHit(Test.STATE);
     }
 
     @Override
@@ -791,216 +661,62 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
      * @param interval 执行的间隔，最小为1.
      */
     public void healPlayer(int interval) {
-
-        if (Test.STATE.ticks % interval == 0) {
-            if (Test.STATE.player.hp < Test.STATE.player.hpMax && Test.STATE.player.hp > 0) {
-                Test.STATE.player.hp++;
-            }
-            if (Test.STATE.player.karma > 0) {
-
-                Test.STATE.player.karma--;
-            }
-        }
-
+        alpha.system.KarmaSystem.healPlayer(Test.STATE, interval);
     }
 
     // 让骨头消失
     public void checkBonesDisappear() {
-        for (int i = 0; i < Test.STATE.bones.size(); i++) {
-            if (Test.STATE.bones.get(i).duration <= 0 && Test.STATE.bones.get(i).fadeOut) {
-                Test.STATE.bones.remove(i);
-                if (Test.STATE.bones.size() == 0) {
-                    break;
-                }
-            } else if (!Test.STATE.bones.get(i).fadeOut
-                && (Test.STATE.bones.get(i).direction == 3 && Test.STATE.bones.get(i).x <= Test.STATE.bones.get(i).disappearX
-                || Test.STATE.bones.get(i).direction == 1 && Test.STATE.bones.get(i).x >= Test.STATE.bones.get(i).disappearX
-                || Test.STATE.bones.get(i).direction == 2 && Test.STATE.bones.get(i).y >= Test.STATE.bones.get(i).disappearY
-                || Test.STATE.bones.get(i).direction == 0
-                && Test.STATE.bones.get(i).y <= Test.STATE.bones.get(i).disappearY)) {
-                Test.STATE.bones.remove(i);
-            }
-        }
-        for (int i = 0; i < Test.STATE.spears.size(); i++) {
-            if ((Test.STATE.spears.get(i).direction == 3 && Test.STATE.spears.get(i).x <= Test.STATE.spears.get(i).disappearX
-                || Test.STATE.spears.get(i).direction == 1 && Test.STATE.spears.get(i).x >= Test.STATE.spears.get(i).disappearX
-                || Test.STATE.spears.get(i).direction == 2 && Test.STATE.spears.get(i).y >= Test.STATE.spears.get(i).disappearY
-                || Test.STATE.spears.get(i).direction == 0
-                && Test.STATE.spears.get(i).y <= Test.STATE.spears.get(i).disappearY)) {
-                Test.STATE.spears.remove(i);
-            }
-        }
+        alpha.system.LifetimeSystem.checkBonesDisappear(Test.STATE);
     }
 
     public void boneDurationSubtract() {
-        for (int i = 0; i < Test.STATE.bones.size(); i++) {
-            if (Test.STATE.bones.get(i).fadeOut) {
-                Test.STATE.bones.get(i).duration--;
-            }
-        }
+        alpha.system.LifetimeSystem.boneDurationSubtract(Test.STATE);
     }
 
     public void warningDurationSubtract() {
-        for (int i = 0; i < Test.STATE.warnings.size(); i++) {
-            if (Test.STATE.warnings.get(i).duration > 0) {
-                Test.STATE.warnings.get(i).duration--;
-            }
-        }
+        alpha.system.LifetimeSystem.warningDurationSubtract(Test.STATE);
     }
 
     // 设置传送工作情况
     public void setTeleportersState(boolean value) {
-        for (Teleporter t : Test.STATE.bounds) {
-            t.activated = value;
-        }
+        alpha.system.PhysicsSystem.setTeleportersState(Test.STATE, value);
     }
 
     public void setCoordinateSystemState(boolean value) {
-        Test.STATE.cSystem.activated = value;
-        if (!value) {
-            Test.STATE.cSystem.functionAttacks.removeAllElements();
-        }
+        alpha.system.PhysicsSystem.setCoordinateSystemState(Test.STATE, value);
     }
 
     // 检查玩家传送
     public void checkTeleport() {
-        for (Teleporter e : Test.STATE.bounds) {
-            if (e.hitbox.intersects(Test.STATE.player.hitbox) && e.activated) {
-                e.transport();
-            }
-        }
+        alpha.system.PhysicsSystem.checkTeleport(Test.STATE);
     }
 
     //重启游戏
     public void gameRestart() {
-        this.setTeleportersState(false);
-        this.setCoordinateSystemState(false);
-
-        Test.STATE.ticks = 0;
-        Test.STATE.player.hp = Test.STATE.player.hpMax;
-        Test.STATE.player.x = 250;
-        Test.STATE.player.y = 250;
-        Test.STATE.player.karma = 0;
-        //去骨
-        Test.STATE.bones.removeAllElements();
-        //去矛
-        Test.STATE.spears.removeAllElements();
-        Test.STATE.warnings.removeAllElements();
-        this.redtify();
-        Test.STATE.restart = false;
-        Test.STATE.over = false;
-
+        alpha.system.ModeSystem.gameRestart(Test.STATE);
     }
 
     public void restoreInitialBorder() {
-        Test.STATE.moveBorder[0].x = 0;
-        Test.STATE.moveBorder[0].y = 0;
-        Test.STATE.moveBorder[0].width = 500;
-        Test.STATE.moveBorder[0].height = 20;
-        Test.STATE.moveBorder[0].updateHitbox();
-        Test.STATE.moveBorder[1].x = 480;
-        Test.STATE.moveBorder[1].y = 0;
-        Test.STATE.moveBorder[1].width = 20;
-        Test.STATE.moveBorder[1].height = 500;
-        Test.STATE.moveBorder[1].updateHitbox();
-        Test.STATE.moveBorder[2].x = 0;
-        Test.STATE.moveBorder[2].y = 480;
-        Test.STATE.moveBorder[2].width = 500;
-        Test.STATE.moveBorder[2].height = 20;
-        Test.STATE.moveBorder[2].updateHitbox();
-        Test.STATE.moveBorder[3].x = 0;
-        Test.STATE.moveBorder[3].y = 0;
-        Test.STATE.moveBorder[3].width = 20;
-        Test.STATE.moveBorder[3].height = 500;
-        Test.STATE.moveBorder[3].updateHitbox();
-        Test.STATE.player.updateHitbox();
+        alpha.system.ModeSystem.restoreInitialBorder(Test.STATE);
     }
 
     //切换成蓝色模式
     public void bluetify(int gDirection) {
-        Test.STATE.player.soulMode = "Blue";
-        Test.STATE.player.shield.activated = false;
-        Test.STATE.player.speed = 9;
-        Test.STATE.player.gDirection = gDirection;
-        restoreInitialBorder();
+        alpha.system.ModeSystem.bluetify(Test.STATE, gDirection);
     }
 
     //切换成红色模式
     public void redtify() {
-        Test.STATE.player.soulMode = "Red";
-        Test.STATE.player.speed = 9;
-        restoreInitialBorder();
+        alpha.system.ModeSystem.redtify(Test.STATE);
     }
 
     //切换成绿色模式
     public void greentify() {
-        Test.STATE.player.soulMode = "Green";
-        Test.STATE.player.speed = 0;
-        Test.STATE.player.shield.activated = true;
-
-        Test.STATE.player.x = 225;
-        Test.STATE.player.y = 225;
-        Test.STATE.moveBorder[0].x = 205;
-        Test.STATE.moveBorder[0].y = 205;
-        Test.STATE.moveBorder[0].width = 65;
-        Test.STATE.moveBorder[0].updateHitbox();
-        Test.STATE.moveBorder[1].x = 250;
-        Test.STATE.moveBorder[1].y = 205;
-        Test.STATE.moveBorder[1].height = 65;
-        Test.STATE.moveBorder[1].updateHitbox();
-        Test.STATE.moveBorder[2].x = 205;
-        Test.STATE.moveBorder[2].y = 250;
-        Test.STATE.moveBorder[2].width = 65;
-        Test.STATE.moveBorder[2].updateHitbox();
-        Test.STATE.moveBorder[3].x = 205;
-        Test.STATE.moveBorder[3].y = 205;
-        Test.STATE.moveBorder[3].height = 65;
-        Test.STATE.moveBorder[3].updateHitbox();
-        Test.STATE.player.updateHitbox();
+        alpha.system.ModeSystem.greentify(Test.STATE);
     }
 
     public void gravity() {
-        //如果玩家是蓝色模式
-        if (Test.STATE.player.soulMode.equals("Blue")) {
-            //并且玩家的重力已经让玩家运动到边界，那么就把玩家重力速度设置为0
-            if (Test.STATE.player.gDirection == 0 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[0].hitbox)) {
-                Test.STATE.player.gSpeed = 0;
-
-            } else if (Test.STATE.player.gDirection == 2 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[2].hitbox)) {
-                Test.STATE.player.gSpeed = 0;
-
-            } else if (Test.STATE.player.gDirection == 3 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[3].hitbox)) {
-                Test.STATE.player.gSpeed = 0;
-
-            } else if (Test.STATE.player.gDirection == 1 && Test.STATE.player.hitbox.intersects(Test.STATE.moveBorder[1].hitbox)) {
-                Test.STATE.player.gSpeed = 0;
-
-            }
-//			for(Platform p:Test.STATE.platforms) {
-//				if(Test.STATE.player.hitbox.intersects(p.hitbox)) {
-//					Test.STATE.player.gSpeed=0;
-//				}
-//			}
-            switch (Test.STATE.player.gDirection) {
-                case 0:
-                    Test.STATE.player.y -= Test.STATE.player.gSpeed / 60;
-                    break;
-                case 1:
-                    Test.STATE.player.x += Test.STATE.player.gSpeed / 60;
-                    break;
-                case 2:
-                    Test.STATE.player.y += Test.STATE.player.gSpeed / 60;
-                    break;
-                case 3:
-                    Test.STATE.player.x -= Test.STATE.player.gSpeed / 60;
-                    break;
-
-            }
-
-            Test.STATE.player.gSpeed += 2.6;
-
-
-        }
+        alpha.system.PhysicsSystem.gravity(Test.STATE);
     }
     // Attacks
 
