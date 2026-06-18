@@ -220,39 +220,75 @@ public class Renderer {
     }
 
     public static void render(Graphics g, GameState gs, JPanel panel) {
-        g.fillRect(0, 0, gs.frame.getWidth(), gs.frame.getHeight());
-        drawBound(g, gs, panel);
-        drawStatus(g, gs, panel);
+        int panelW = panel.getWidth();
+        int panelH = panel.getHeight();
+        if (panelW <= 0 || panelH <= 0) return;
 
-        if (gs.player.hp > 0) {
-            drawSoul(g, gs, panel);
-            drawHP(g, gs, panel);
-        }
-        drawWarnings(g, gs, panel, gs.warnings);
-        drawBones(g, gs, panel, gs.bones);
-        drawSpear(g, gs, panel);
+        Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            // Scale arena + UI to fit window, keep aspect, center
+            // Logical canvas: arena 500x500, with ~20px margins, HP bar at y=530..565
+            // Total logical size ~540x600
+            float scale = Math.min(panelW / 540f, panelH / 600f);
+            if (scale < 0.3f) scale = 0.3f; // prevent tiny scale
+            float arenaW = 500 * scale;
+            float arenaH = 500 * scale;
+            float offsetX = (panelW - arenaW) / 2f;
+            float offsetY = (panelH - arenaH) / 2f;
 
-        drawGameStatus(g, gs, panel);
-        if (gs.win) {
-            drawWin(g, gs, panel);
-        }
-        if (gs.cSystem.activated) {
-            drawCoordinateSystem(g, gs, panel);
-            for (FunctionAttack a : gs.cSystem.functionAttacks) {
-                if (a.active) {
-                    g.setColor(Color.RED);
-                    int[] intxs = new int[50];
-                    int[] intys = new int[50];
-                    for (int i = 0; i < 50; i++) {
-                        intys[i] = (int) (250 - a.ys[i] + gs.deltaY);
-                        intxs[i] = (int) (250 + a.xs[i] + gs.deltaX);
+            // Fill background
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, panelW, panelH);
+
+            g2.translate(offsetX, offsetY);
+            g2.scale(scale, scale);
+
+            // Temporarily set delta to 0 so existing draw code uses world coords directly
+            int oldDeltaX = gs.deltaX;
+            int oldDeltaY = gs.deltaY;
+            gs.deltaX = 0;
+            gs.deltaY = 0;
+
+            drawBound(g2, gs, panel);
+            drawStatus(g2, gs, panel);
+
+            if (gs.player.hp > 0) {
+                drawSoul(g2, gs, panel);
+                drawHP(g2, gs, panel);
+            }
+            drawWarnings(g2, gs, panel, gs.warnings);
+            drawBones(g2, gs, panel, gs.bones);
+            drawSpear(g2, gs, panel);
+
+            drawGameStatus(g2, gs, panel);
+            if (gs.win) {
+                drawWin(g2, gs, panel);
+            }
+            if (gs.cSystem.activated) {
+                drawCoordinateSystem(g2, gs, panel);
+                for (FunctionAttack a : gs.cSystem.functionAttacks) {
+                    if (a.active) {
+                        g2.setColor(Color.RED);
+                        int[] intxs = new int[50];
+                        int[] intys = new int[50];
+                        for (int i = 0; i < 50; i++) {
+                            intys[i] = (int) (250 - a.ys[i]);
+                            intxs[i] = (int) (250 + a.xs[i]);
+                        }
+                        g2.setStroke(new BasicStroke(3f / scale)); // keep line width constant in screen pixels
+                        g2.drawPolyline(intxs, intys, 50);
+                        g2.setStroke(new BasicStroke(1f));
                     }
-                    g.drawPolyline(intxs, intys, 50);
                 }
             }
-        }
-        if (gs.player.soulMode.equals("Blue")) {
-            drawGravityDirection(g, gs, panel);
+            if (gs.player.soulMode.equals("Blue")) {
+                drawGravityDirection(g2, gs, panel);
+            }
+
+            gs.deltaX = oldDeltaX;
+            gs.deltaY = oldDeltaY;
+        } finally {
+            g2.dispose();
         }
     }
 

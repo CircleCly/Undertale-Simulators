@@ -10,6 +10,8 @@ public class GameView extends JPanel {
     public GameView(GameState gs) {
         this.gs = gs;
         setFocusable(false);
+        setPreferredSize(new java.awt.Dimension(900, 650));
+        setMinimumSize(new java.awt.Dimension(600, 620));
     }
 
     @Override

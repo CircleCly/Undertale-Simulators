@@ -52,13 +52,14 @@ public class Game implements Runnable {
         gs.frame = frame;
         frame.add(view);
 
-        Toolkit tk = Toolkit.getDefaultToolkit();
-        frame.setSize(tk.getScreenSize().width, tk.getScreenSize().height);
+        frame.setSize(900, 650);
+        frame.setMinimumSize(new java.awt.Dimension(600, 620));
         frame.setVisible(true);
         frame.setFocusable(true);
-        frame.setResizable(false);
+        frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("UNDERTALE");
+        frame.setLocationRelativeTo(null);
 
         // Input
         frame.addKeyListener(new InputHandler(gs));
