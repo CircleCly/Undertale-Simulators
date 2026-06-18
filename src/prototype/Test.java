@@ -132,7 +132,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 		// TODO Auto-generated method stub
 		while (true) {
 
-			// ÒÆ¶¯Íæ¼Ò
+			// ç§»åŠ¨çŽ©å®¶
 
 			if (!Test.paused && !Test.over&&!Test.win) {
 				try {
@@ -151,14 +151,14 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 				} else if (Test.player.right && Test.player.x < 480 - Test.player.width) {
 					Test.player.x += Test.player.speed;
 				}
-				// ÒÆ¶¯¹ÇÍ·
+				// ç§»åŠ¨éª¨å¤´
 				for (int i = 0; i < Test.bones.size(); i++) {
 
 					Test.bones.get(i).move();
 				}
-				// ¸üÐÂÍæ¼ÒµÄÅö×²Ïä
+				// æ›´æ–°çŽ©å®¶çš„ç¢°æ’žç®±
 				Test.player.updateHitbox();
-				// ¹¥»÷Ê±¼ä±í
+				// æ”»å‡»æ—¶é—´è¡¨
 				if (Test.ticks >= 90 && Test.ticks < 150) {
 					this.boneSpike(2);
 				}
@@ -261,7 +261,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 				}
 				// Check Bones disappear
 				this.checkBonesDisappear();
-				// Karma¼õÑª
+				// Karmaå‡è¡€
 				if (Test.player.karma > 40) {
 					Test.player.karma = 40;
 				}
@@ -356,7 +356,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	}
 
-	// ½±Àø
+	// å¥–åŠ±
 	public void healPlayer(int interval) {
 
 		if (Test.ticks % interval == 0) {
@@ -371,7 +371,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	}
 
-	// ¼ì²é¹ÇÍ·ÏûÊ§
+	// æ£€æŸ¥éª¨å¤´æ¶ˆå¤±
 	public void checkBonesDisappear() {
 		for (int i = 0; i < Test.bones.size(); i++) {
 			if (Test.bones.get(i).direction == 3 && Test.bones.get(i).x <= Test.bones.get(i).disappearX
@@ -385,7 +385,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 
 	// Attacks
 	/**
-	 * ¹¥»÷Ä£Ê½Ò»£º ÊúÅÅ¹ÇÍ·´ø¿Õ¹¥»÷
+	 * æ”»å‡»æ¨¡å¼ä¸€ï¼š ç«–æŽ’éª¨å¤´å¸¦ç©ºæ”»å‡»
 	 * 
 	 */
 	public void boneShaft() {
@@ -417,7 +417,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	}
 
 	/**
-	 * ¹¥»÷Ä£Ê½¶þ£ººáÅÅ¹ÇÍ·½»´í¹¥»÷
+	 * æ”»å‡»æ¨¡å¼äºŒï¼šæ¨ªæŽ’éª¨å¤´äº¤é”™æ”»å‡»
 	 */
 	public void crossBones() {
 
@@ -448,10 +448,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	}
 
 	/**
-	 * ¹¥»÷Ä£Ê½Èý£ºË²ÒÆ¹Ç´Ì¹¥»÷
+	 * æ”»å‡»æ¨¡å¼ä¸‰ï¼šçž¬ç§»éª¨åˆºæ”»å‡»
 	 * 
 	 * @param direction
-	 *            ¹¥»÷³öÏÖ·½Ïò£º 0ÉÏ 1ÓÒ 2ÏÂ 3×ó
+	 *            æ”»å‡»å‡ºçŽ°æ–¹å‘ï¼š 0ä¸Š 1å³ 2ä¸‹ 3å·¦
 	 */
 	public void boneSpike(int direction) {
 
@@ -516,10 +516,10 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	}
 
 	/**
-	 * ¹¥»÷Ä£Ê½ËÄ£ºÉ¢ÂÒ¹Çµã¹¥»÷ £¨²»¶¨Ïò£©
+	 * æ”»å‡»æ¨¡å¼å››ï¼šæ•£ä¹±éª¨ç‚¹æ”»å‡» ï¼ˆä¸å®šå‘ï¼‰
 	 * 
 	 * @param direction
-	 *            ¹ÇÍ·µÄ·½Ïò
+	 *            éª¨å¤´çš„æ–¹å‘
 	 */
 
 	public void boneRain(int direction) {
@@ -575,7 +575,7 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 	}
 
 	/**
-	 * ¹¥»÷Ä£Ê½Îå£º¶¨Î»¹ÇÍ·³å»÷
+	 * æ”»å‡»æ¨¡å¼äº”ï¼šå®šä½éª¨å¤´å†²å‡»
 	 */
 	public void sniperBone() {
 
@@ -621,8 +621,8 @@ class GamePanel extends JPanel implements Runnable, KeyListener {
 		}
 	}
 	/**
-	 * ¹¥»÷Ä£Ê½Áù£º¹ÇÍ·Ë«Ïò½»´í´ø¿Õ¹¥»÷(·½Ïò²ÎÊý°æ)
-	 * @param direction 0ÉÏÏÂ 1×óÓÒ
+	 * æ”»å‡»æ¨¡å¼å…­ï¼šéª¨å¤´åŒå‘äº¤é”™å¸¦ç©ºæ”»å‡»(æ–¹å‘å‚æ•°ç‰ˆ)
+	 * @param direction 0ä¸Šä¸‹ 1å·¦å³
 	 * 
 	 */
      public void foldBones(int direction)
@@ -765,10 +765,10 @@ class Soul extends Entity {
 class Bone extends Entity {
 	int damage;
 	int speed = 20;
-	// ¹ÇÍ·ÏûÊ§µÄ½çÏÞ x×ø±ê
+	// éª¨å¤´æ¶ˆå¤±çš„ç•Œé™ xåæ ‡
 	int disappearX;
 
-	// ¹ÇÍ·ÏûÊ§µÄ½çÏÞ£ºY×ø±ê
+	// éª¨å¤´æ¶ˆå¤±çš„ç•Œé™ï¼šYåæ ‡
 	int disappearY;
 
 	public void move() {
