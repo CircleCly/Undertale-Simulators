@@ -5,8 +5,20 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class BoneSpikeAttack {
+public class BoneSpikeAttack implements Attack {
+    private final int direction;
+
+    public BoneSpikeAttack(int direction) {
+        this.direction = direction;
+    }
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs, int direction) {
+        new BoneSpikeAttack(direction).tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
 
         if (gs.ticks % 60 == 0) {

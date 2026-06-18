@@ -1,7 +1,6 @@
 package alpha.system;
 
 import alpha.GameState;
-import alpha.Test;
 import alpha.model.*;
 
 public class PhysicsSystem {
@@ -54,7 +53,7 @@ public class PhysicsSystem {
     public static void checkTeleport(GameState gs) {
         for (Teleporter e : gs.bounds) {
         if (e.hitbox.intersects(gs.player.hitbox) && e.activated) {
-        e.transport();
+        e.transport(gs);
         }
         }
 

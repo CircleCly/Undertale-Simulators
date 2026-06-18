@@ -5,8 +5,16 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class LaserTrapAttack {
+public class LaserTrapAttack implements Attack {
+    public LaserTrapAttack() {}
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs) {
+        new LaserTrapAttack().tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
         if (gs.ticks % 55 == 0) {
         for (int i = 1; i <= 2; i++) {

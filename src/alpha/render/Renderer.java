@@ -3,7 +3,6 @@ package alpha.render;
 import java.awt.*;
 import javax.swing.*;
 import alpha.GameState;
-import alpha.Test;
 import alpha.model.*;
 import alpha.attack.function.*;
 import java.util.Vector;

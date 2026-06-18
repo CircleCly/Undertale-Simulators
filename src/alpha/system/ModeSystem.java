@@ -1,7 +1,6 @@
 package alpha.system;
 
 import alpha.GameState;
-import alpha.Test;
 import alpha.model.*;
 
 public class ModeSystem {

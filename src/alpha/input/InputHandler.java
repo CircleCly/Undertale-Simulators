@@ -3,7 +3,6 @@ package alpha.input;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import alpha.GameState;
-import alpha.Test;
 
 public class InputHandler implements KeyListener {
 
@@ -57,16 +56,5 @@ public class InputHandler implements KeyListener {
     @Override
     public void keyTyped(KeyEvent arg0) {
         // TODO Auto-generated method stub
-    }
-
-    // Static convenience delegating to Test.STATE for backward compatibility during transition
-    public static void handleKeyPressed(KeyEvent e) {
-        new InputHandler(Test.STATE).keyPressed(e);
-    }
-    public static void handleKeyReleased(KeyEvent e) {
-        new InputHandler(Test.STATE).keyReleased(e);
-    }
-    public static void handleKeyTyped(KeyEvent e) {
-        // no-op
     }
 }

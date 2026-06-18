@@ -5,8 +5,20 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class FoldBonesAttack {
+public class FoldBonesAttack implements Attack {
+    private final int direction;
+
+    public FoldBonesAttack(int direction) {
+        this.direction = direction;
+    }
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs, int direction) {
+        new FoldBonesAttack(direction).tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
         if (gs.ticks % 55 == 0) {
 

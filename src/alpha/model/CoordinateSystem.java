@@ -1,20 +1,20 @@
 package alpha.model;
 
 import java.util.Vector;
-import alpha.Test;
+import alpha.GameState;
 import alpha.attack.function.*;
 
 public class CoordinateSystem {
     public boolean activated = false;
     public Vector<FunctionAttack> functionAttacks = new Vector<FunctionAttack>();
 
-    public void createFunctionAttack() {
+    public void createFunctionAttack(GameState gs) {
         LinearFunction lFunction = null;
         QuadraticFunction qFunction = null;
         ExponentialFunction eFunction = null;
         TrigFunction tFunction = null;
         double value = Math.random();
-        if (Test.STATE.ticks % 300 == 0) {
+        if (gs.ticks % 300 == 0) {
             if (value < 0.25) {
                 lFunction = new LinearFunction((float) ((int) (Math.random() * 20 - 10) * 0.5),
                     (int) (Math.random() * 300 - 150));
@@ -40,9 +40,9 @@ public class CoordinateSystem {
         }
     }
 
-    public boolean checkIfPlayerHit() {
-        float playerX = Test.STATE.player.x - 250;
-        float playerY = 250 - Test.STATE.player.y;
+    public boolean checkIfPlayerHit(GameState gs) {
+        float playerX = gs.player.x - 250;
+        float playerY = 250 - gs.player.y;
         float y = 0f;
         for (int i = 0; i < this.functionAttacks.size(); i++) {
 

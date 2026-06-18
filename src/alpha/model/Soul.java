@@ -1,7 +1,6 @@
 package alpha.model;
 
 import java.awt.Rectangle;
-import alpha.Test;
 
 public class Soul extends Entity {
     public int hp = 92;
@@ -32,7 +31,7 @@ public class Soul extends Entity {
     }
 
     public void directShield(int direction) {
-        Test.STATE.player.shield.direction = direction;
+        this.shield.direction = direction;
         switch (direction) {
             case 0:
                 if (this.soulMode.equals("Green")) {

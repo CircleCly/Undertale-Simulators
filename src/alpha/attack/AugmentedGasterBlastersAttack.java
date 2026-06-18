@@ -5,8 +5,16 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class AugmentedGasterBlastersAttack {
+public class AugmentedGasterBlastersAttack implements Attack {
+    public AugmentedGasterBlastersAttack() {}
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs) {
+        new AugmentedGasterBlastersAttack().tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
         if (gs.ticks % 30 == 0) {
 

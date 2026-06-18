@@ -9,7 +9,7 @@ public class GameState {
     public JFrame frame;
     public CoordinateSystem cSystem;
     public Soul player;
-    public GamePanel gp;
+    public javax.swing.JPanel gp;
     public float ticks = 0;
     public Vector<Bone> bones;
     public Vector<Spear> spears;

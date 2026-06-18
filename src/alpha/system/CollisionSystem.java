@@ -1,7 +1,6 @@
 package alpha.system;
 
 import alpha.GameState;
-import alpha.Test;
 import alpha.model.*;
 
 public class CollisionSystem {
@@ -26,7 +25,7 @@ public class CollisionSystem {
         }
         }
         }
-        if (gs.cSystem.checkIfPlayerHit()) {
+        if (gs.cSystem.checkIfPlayerHit(gs)) {
 
         if (gs.player.invincibleFrames <= 0) {
         gs.player.hp /= 2;

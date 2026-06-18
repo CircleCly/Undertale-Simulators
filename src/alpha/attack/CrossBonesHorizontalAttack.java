@@ -5,8 +5,16 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class CrossBonesHorizontalAttack {
+public class CrossBonesHorizontalAttack implements Attack {
+    public CrossBonesHorizontalAttack() {}
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs) {
+        new CrossBonesHorizontalAttack().tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
         //大骨头
         if (gs.ticks % 40 == 20) {

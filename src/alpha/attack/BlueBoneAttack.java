@@ -5,8 +5,16 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class BlueBoneAttack {
+public class BlueBoneAttack implements Attack {
+    public BlueBoneAttack() {}
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs) {
+        new BlueBoneAttack().tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
 
 

@@ -5,8 +5,20 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class BoneLazerAttack {
+public class BoneLazerAttack implements Attack {
+    private final int direction;
+
+    public BoneLazerAttack(int direction) {
+        this.direction = direction;
+    }
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs, int direction) {
+        new BoneLazerAttack(direction).tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
         Bone b1 = new Bone();// 锟斤拷锟脚的癸拷头
         Bone b2 = new Bone(); // 锟斤拷锟脚的癸拷头

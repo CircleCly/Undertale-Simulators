@@ -45,11 +45,10 @@ All commands must be run from the repository root so `src/alpha/imgs/*.png` reso
 ### Bullet Hell Simulator (alpha) – main game
 
 ```bash
-dotslash_java -cp bin alpha.Test
+dotslash_java -cp bin alpha.Main
 ```
 
-Current entry point: `alpha.Test.main`
-Future entry point (after Phase 6): `alpha.Main`
+Entry point: `alpha.Main.main` → `new Game().start()`
 
 A fullscreen JFrame opens with a 500×500 arena centered on screen.
 
@@ -103,24 +102,24 @@ Early bullet hell prototype – 791 lines, single file.
 | `ImageIcon` shows blank / soul invisible | Run from repo root – `SpriteLoader` loads `src/alpha/imgs/...` relative to CWD. `cd /data/repos/Undertale-Simulators` first. |
 | Garbled comments / compile error about unmappable character | Add `-encoding UTF-8` to `javac`. |
 | Missing fonts "Monster Friend Back", "Determination Sans", "宋体" | Expected on Linux – Swing falls back to SansSerif automatically (`FontRegistry` handles this in Phase 4+). |
-| `ClassNotFoundException: alpha.Test` | Classpath missing – use `-cp bin`, ensure `bin/alpha/Test.class` exists after compile. |
+| `ClassNotFoundException: alpha.Main` | Classpath missing – use `-cp bin`, ensure `bin/alpha/Main.class` exists after compile. |
 | Window opens off-screen / wrong size | Game uses `Toolkit.getDefaultToolkit().getScreenSize()` for fullscreen. Check display scaling. |
 | `ConcurrentModificationException` during paint | Known risk pre-Phase 7 – Vector → ArrayList migration with snapshot copy is planned. Current `refactor/split-alpha` still uses `Vector`. |
 
 ## IDE
 
-IntelliJ: Open folder as project, `UndertaleSimulator.iml` is checked in. Run configuration: Main class `alpha.Test`, Working directory = repository root.
+IntelliJ: Open folder as project, `UndertaleSimulator.iml` is checked in. Run configuration: Main class `alpha.Main`, Working directory = repository root.
 
 ## Current Refactor Status
 
-Branch `refactor/split-alpha` – Phase 4 complete:
+Branch `refactor/split-alpha` – Phase 6 complete:
 - Model classes extracted to `alpha.model.*`
 - Enums: `Direction`, `SoulMode`, `BoneColor`, `SpearColor`
 - Systems: `MovementSystem`, `PhysicsSystem`, `CollisionSystem`, `KarmaSystem`, `LifetimeSystem`, `ModeSystem`
 - Render split: `alpha.render.Renderer`, `SpriteLoader`, `FontRegistry`
 - Input split: `alpha.input.InputHandler`
-- Attacks extracted to `alpha.attack.*` classes, but `AttackScheduler` still uses the old if-else chain (data-driven timeline is Phase 5)
-
-Static mutable globals still live on `Test.STATE` – elimination is Phase 6.
+- Attacks extracted to `alpha.attack.*` classes with `Attack` interface, `AttackScheduler` data-driven timeline
+- Game loop split: `alpha.Main` entry point, `alpha.Game` owns `GameState` instance, `alpha.view.GameView` pure view with `paintComponent`
+- Zero static mutable globals – `Test.java` deleted
 
 See `docs/splitting-plan.md` and `docs/bullet-hell-status.md` for full architecture notes.

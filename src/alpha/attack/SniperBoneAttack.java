@@ -5,8 +5,20 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class SniperBoneAttack {
+public class SniperBoneAttack implements Attack {
+    private final int interval;
+
+    public SniperBoneAttack(int interval) {
+        this.interval = interval;
+    }
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs, int interval) {
+        new SniperBoneAttack(interval).tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
 
         if (gs.ticks % interval == 0) {

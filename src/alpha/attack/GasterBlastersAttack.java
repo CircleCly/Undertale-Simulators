@@ -5,8 +5,16 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class GasterBlastersAttack {
+public class GasterBlastersAttack implements Attack {
+    public GasterBlastersAttack() {}
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs) {
+        new GasterBlastersAttack().tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
         if (gs.ticks % 120 == 0) {
         Bone b1 = new Bone();

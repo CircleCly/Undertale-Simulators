@@ -7,8 +7,16 @@ import alpha.model.*;
 import java.util.Vector;
 import java.util.Random;
 
-public class SpearAttackThree {
+public class SpearAttackThree implements Attack {
+    public SpearAttackThree() {}
+
+    // Legacy static entry point – remove after Phase 5 scheduler rewrite
     public static void execute(GameState gs) {
+        new SpearAttackThree().tick(gs);
+    }
+
+    @Override
+    public void tick(GameState gs) {
 
         alpha.system.ModeSystem.greentify(gs);
         if (gs.ticks % 40 == 0) {
