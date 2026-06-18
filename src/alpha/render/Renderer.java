@@ -176,14 +176,8 @@ public class Renderer {
         g.setColor(Color.GREEN);
         g.drawLine(0 + gs.deltaX, 250 + gs.deltaY, 500 + gs.deltaX, 250 + gs.deltaY);
         g.drawLine(250 + gs.deltaX, 0 + gs.deltaY, 250 + gs.deltaX, 500 + gs.deltaY);
-        g.setColor(Color.YELLOW);
-        g.drawString("(" + (int) (gs.player.x - 250) + "," + (int) (250 - gs.player.y) + ")", -350 + gs.deltaX, 160 + gs.deltaY);
-        for (int i = 0; i < gs.cSystem.functionAttacks.size(); i++) {
-            FunctionAttack f = gs.cSystem.functionAttacks.get(i);
-            g.drawString(f.equation, -700 + gs.deltaX, 200 + 40 * i + gs.deltaY);
-
-        }
-    
+        // Player coordinate and function equations are now drawn in HUD overlay
+        // (see drawHUD), keeping world rendering clean
     }
 
     public static void drawFunctionAttacks(Graphics g, GameState gs, JPanel panel) {
@@ -198,7 +192,8 @@ public class Renderer {
                     intxs[i] = (int) (250 + a.xs[i] + gs.deltaX);
                 }
                 Graphics2D graphics2d = (Graphics2D) g;
-                graphics2d.setStroke(new BasicStroke(3));
+                // Note: when called from scaled world pass, caller should adjust stroke for scale.
+                // When called standalone (legacy), use default stroke.
                 g.drawPolyline(intxs, intys, 50);
             }
         }
@@ -224,69 +219,149 @@ public class Renderer {
         int panelH = panel.getHeight();
         if (panelW <= 0 || panelH <= 0) return;
 
-        Graphics2D g2 = (Graphics2D) g.create();
+        // Compute world-to-screen transform – arena 500x500 centered
+        float scale = Math.min(panelW / 540f, panelH / 600f);
+        if (scale < 0.3f) scale = 0.3f;
+        float arenaW = 500 * scale;
+        float arenaH = 500 * scale;
+        float offsetX = (panelW - arenaW) / 2f;
+        float offsetY = (panelH - arenaH) / 2f;
+
+        // Fill background
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, panelW, panelH);
+
+        // ---- World pass (scaled) ----
+        Graphics2D gWorld = (Graphics2D) g.create();
         try {
-            // Scale arena + UI to fit window, keep aspect, center
-            // Logical canvas: arena 500x500, with ~20px margins, HP bar at y=530..565
-            // Total logical size ~540x600
-            float scale = Math.min(panelW / 540f, panelH / 600f);
-            if (scale < 0.3f) scale = 0.3f; // prevent tiny scale
-            float arenaW = 500 * scale;
-            float arenaH = 500 * scale;
-            float offsetX = (panelW - arenaW) / 2f;
-            float offsetY = (panelH - arenaH) / 2f;
+            gWorld.translate(offsetX, offsetY);
+            gWorld.scale(scale, scale);
 
-            // Fill background
-            g2.setColor(Color.BLACK);
-            g2.fillRect(0, 0, panelW, panelH);
-
-            g2.translate(offsetX, offsetY);
-            g2.scale(scale, scale);
-
-            // Temporarily set delta to 0 so existing draw code uses world coords directly
             int oldDeltaX = gs.deltaX;
             int oldDeltaY = gs.deltaY;
             gs.deltaX = 0;
             gs.deltaY = 0;
 
-            drawBound(g2, gs, panel);
-            drawStatus(g2, gs, panel);
-
+            drawBound(gWorld, gs, panel);
+            // drawStatus is empty – skip
             if (gs.player.hp > 0) {
-                drawSoul(g2, gs, panel);
-                drawHP(g2, gs, panel);
+                drawSoul(gWorld, gs, panel);
             }
-            drawWarnings(g2, gs, panel, gs.warnings);
-            drawBones(g2, gs, panel, gs.bones);
-            drawSpear(g2, gs, panel);
+            drawWarnings(gWorld, gs, panel, gs.warnings);
+            drawBones(gWorld, gs, panel, gs.bones);
+            drawSpear(gWorld, gs, panel);
 
-            drawGameStatus(g2, gs, panel);
-            if (gs.win) {
-                drawWin(g2, gs, panel);
-            }
             if (gs.cSystem.activated) {
-                drawCoordinateSystem(g2, gs, panel);
+                drawCoordinateSystem(gWorld, gs, panel);
+                // function attack polylines
                 for (FunctionAttack a : gs.cSystem.functionAttacks) {
                     if (a.active) {
-                        g2.setColor(Color.RED);
+                        gWorld.setColor(Color.RED);
                         int[] intxs = new int[50];
                         int[] intys = new int[50];
                         for (int i = 0; i < 50; i++) {
                             intys[i] = (int) (250 - a.ys[i]);
                             intxs[i] = (int) (250 + a.xs[i]);
                         }
-                        g2.setStroke(new BasicStroke(3f / scale)); // keep line width constant in screen pixels
-                        g2.drawPolyline(intxs, intys, 50);
-                        g2.setStroke(new BasicStroke(1f));
+                        gWorld.setStroke(new BasicStroke(3f / scale));
+                        gWorld.drawPolyline(intxs, intys, 50);
+                        gWorld.setStroke(new BasicStroke(1f));
                     }
                 }
             }
+            // Gravity arrow – world-space, off-screen left per design
             if (gs.player.soulMode.equals("Blue")) {
-                drawGravityDirection(g2, gs, panel);
+                drawGravityDirection(gWorld, gs, panel);
             }
 
             gs.deltaX = oldDeltaX;
             gs.deltaY = oldDeltaY;
+        } finally {
+            gWorld.dispose();
+        }
+
+        // ---- HUD pass (unscaled, screen coordinates) ----
+        // HP bar / text, pause/restart/win text, function equations overlay
+        drawHUD(g, gs, panel, offsetX, offsetY, scale);
+    }
+
+    private static void drawHUD(Graphics g, GameState gs, JPanel panel, float offsetX, float offsetY, float scale) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            // HP bar – positioned below arena, scaled width to match arena
+            int hpBarX = (int) offsetX;
+            int hpBarY = (int) (offsetY + 500 * scale + 8);
+            int hpBarW = (int) (500 * scale);
+            int hpBarH = 22;
+
+            // HP fill
+            g2.setColor(Color.YELLOW);
+            int hpW = (int) (hpBarW * gs.player.hp / (float) gs.player.hpMax);
+            g2.fillRect(hpBarX, hpBarY, hpW, hpBarH);
+
+            // Karma overlay
+            if (gs.player.karma > 0) {
+                g2.setColor(new Color(160, 0, 160));
+                int karmaW = (int) (hpBarW * gs.player.karma / (float) gs.player.hpMax);
+                int karmaX = hpBarX + hpW - karmaW;
+                if (karmaX < hpBarX) karmaX = hpBarX;
+                g2.fillRect(karmaX, hpBarY, karmaW, hpBarH);
+            }
+
+            // HP text – fixed screen-pixel size
+            g2.setFont(FontRegistry.getFont("SansSerif", Font.BOLD, 16));
+            g2.setColor(gs.player.karma == 0 ? Color.WHITE : new Color(255, 128, 255));
+            String hpText = gs.player.hp + " / " + gs.player.hpMax;
+            g2.drawString(hpText, hpBarX + 6, hpBarY + 16);
+
+            // Game status – centered above arena
+            g2.setFont(FontRegistry.getFont("SansSerif", Font.BOLD, 18));
+            g2.setColor(Color.YELLOW);
+            String status;
+            if (gs.paused && !gs.over) status = "Press P to Continue";
+            else if (!gs.paused && !gs.over) status = "Press P to Pause";
+            else if (gs.over) status = "Press R to Restart";
+            else status = "";
+            if (!status.isEmpty()) {
+                int sw = g2.getFontMetrics().stringWidth(status);
+                int sx = (int) (offsetX + (500 * scale - sw) / 2);
+                int sy = (int) (offsetY - 8);
+                if (sy < 18) sy = 18;
+                g2.drawString(status, sx, sy);
+            }
+
+            // Win text
+            if (gs.win) {
+                g2.setColor(Color.YELLOW);
+                g2.setFont(FontRegistry.getFont("SansSerif", Font.BOLD, 48));
+                String win = "You Win!";
+                int sw = g2.getFontMetrics().stringWidth(win);
+                g2.drawString(win, (int) (offsetX + (500 * scale - sw) / 2), (int) (offsetY + 500 * scale / 2));
+            }
+
+            // Function equations – top-left overlay
+            if (gs.cSystem.activated && !gs.cSystem.functionAttacks.isEmpty()) {
+                g2.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+                int y = 20;
+                g2.setColor(new Color(0, 0, 0, 140));
+                int maxW = 0;
+                for (FunctionAttack f : gs.cSystem.functionAttacks) {
+                    int w = g2.getFontMetrics().stringWidth(f.equation);
+                    if (w > maxW) maxW = w;
+                }
+                if (maxW > 0) {
+                    g2.fillRect(6, 6, maxW + 12, gs.cSystem.functionAttacks.size() * 16 + 8);
+                }
+                g2.setColor(Color.YELLOW);
+                for (FunctionAttack f : gs.cSystem.functionAttacks) {
+                    g2.drawString(f.equation, 12, y);
+                    y += 16;
+                }
+                // Player coordinate
+                g2.setColor(Color.GREEN);
+                String coord = String.format("(%.0f, %.0f)", gs.player.x - 250, 250 - gs.player.y);
+                g2.drawString(coord, 12, y + 4);
+            }
         } finally {
             g2.dispose();
         }
