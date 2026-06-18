@@ -82,7 +82,7 @@ public class Renderer {
         } else {
             g.setColor(Color.MAGENTA);
         }
-        g.drawString("      " + gs.player.hp + "  /", 120 + gs.deltaX, 530 + gs.deltaY);
+        g.drawString("      " + gs.player.hp + " / " + gs.player.hpMax, 120 + gs.deltaX, 530 + gs.deltaY);
         g.setColor(Color.MAGENTA);
         g.fillRect(gs.deltaX + 300 + gs.player.hp * 2 - gs.player.karma * 2, 530 + gs.deltaY, gs.player.karma * 2,
             35);
